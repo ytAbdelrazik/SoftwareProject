@@ -1,21 +1,33 @@
 # SoftwareProject
 
-Please follow this branchig structure so we make it easy for eachother and be we orgaized
+Please follow this branching structure to make collaboration easy and stay organized.
 
-**Branch Structure**
--Main Branch (main):
- This is the production-ready branch.
- Code in this branch should always be stable and deployable "Final code".
--Development Branch (dev):
- This is the staging branch for all team members' work.
- Merging the work into dev after completing tasks and code reviews.
--Member Branches (<name>):
- Each team member has their own branch to work on tasks and features.
+## **Branch Structure**
 
-###please when uploading your files upload them in YOUR own branch NOT in the MAIN or the DEV branch.###
+- **Main Branch (`main`)**:  
+  This is the production-ready branch.  
+  Code in this branch should always be stable and deployable ("Final code").  
 
-------------------------------------------------------------------------------------------------------------------------------
-This is a simple interpretation of the structure of our project "you can add/remove dto in your feature depending on the requirements or whatever you want to do/develop"
+- **Development Branch (`dev`)**:  
+  This is the staging branch for all team members' work.  
+  Merge your work into `dev` after completing tasks and code reviews.  
+
+- **Member Branches (`<name>`)**:  
+  Each team member has their own branch to work on tasks and features.  
+
+---
+
+### **Important:**  
+**Please upload your files to YOUR own branch, NOT the `main` or `dev` branch.**
+
+---
+
+## **Project Structure**
+
+This is a simple interpretation of the structure of our project:  
+*You can add/remove DTOs in your feature depending on the requirements or whatever you want to do/develop.*
+
+```plaintext
 src/
 ├── user-management/
 │   ├── users.schema.ts
@@ -57,4 +69,4 @@ src/
 │   │   ├── generate-recommendation.dto.ts
 │   ├── recommendation-engine.controller.ts
 │   ├── recommendation-engine.service.ts
-│   ├── recommendation-engine.module.ts 
+│   ├── recommendation-engine.module.ts
