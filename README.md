@@ -22,6 +22,9 @@ Please follow this branching structure to make collaboration easy and stay organ
 
 ---
 
+## **When creating your branch create it from dev not from main and when uploading your files upload into src folder in your owwn branch**
+---
+
 ## **Project Structure**
 
 This is a simple interpretation of the structure of our project:  
