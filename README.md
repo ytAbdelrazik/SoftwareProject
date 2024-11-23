@@ -16,6 +16,7 @@ Please follow this branching structure to make collaboration easy and stay organ
   Each team member has their own branch to work on tasks and features.  
 
 ---
+### **Check:**  
 ## **When creating your branch create it from dev not from main and when uploading your files upload into src folder in your owwn branch**
 ---
 
