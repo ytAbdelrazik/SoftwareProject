@@ -21,12 +21,17 @@ Please follow this branching structure to make collaboration easy and stay organ
 **Please upload your files to YOUR own branch, NOT the `main` or `dev` branch.**
 
 ---
+### **note:**  
+**You can find in div the src file which have the files structured download it develoop your feature and upload it i you OWN branch**
+*You can add/remove DTOs in your feature depending on the requirements or whatever you want to do/develop.
+also rename files and folders depending on your development*
+---
+
 
 ## **Project Structure**
 
 This is a simple interpretation of the structure of our project:  
-*You can add/remove DTOs in your feature depending on the requirements or whatever you want to do/develop.
-also rename files and folders depending on your development*
+
 
 ```plaintext
 src/
@@ -71,3 +76,6 @@ src/
 │   ├── recommendation-engine.controller.ts
 │   ├── recommendation-engine.service.ts
 │   ├── recommendation-engine.module.ts
+
+---
+
