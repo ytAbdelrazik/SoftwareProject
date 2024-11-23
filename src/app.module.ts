@@ -1,15 +1,13 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserManagementModule } from './user-management/user-management.module';
-import { CourseManagementModule } from './course-management/course-management.module';
-import { InteractiveModulesModule } from './interactive-modules/interactive-modules.module';
-import { PerformanceTrackingModule } from './performance-tracking/performance-tracking.module';
-import { RecommendationEngineModule } from './recommendation-engine/recommendation-engine.module';
+import { Module } from "@nestjs/common";
+import { MongooseModule } from "@nestjs/mongoose";
+import { UserModule } from "./user/users.module";
 
 @Module({
-  imports: [UserManagementModule, CourseManagementModule, InteractiveModulesModule, PerformanceTrackingModule, RecommendationEngineModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+  MongooseModule.forRoot('mongodb+srv://yt:yt123@cluster0.l8ikh.mongodb.net/users'), 
+  UserModule
+  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
