@@ -1,28 +1,26 @@
-// response.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type ResponseDocument = Response & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Response {
   @Prop({ required: true })
-  responseId: string;
+  quizId: string;
 
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: true })
-  quizId: string;
-
-  @Prop({ type: Array, required: true })
-  answers: object[];
-
-  @Prop({ required: true })
-  score: number;
-
-  @Prop({ required: true })
-  submittedAt: Date;
+  @Prop({
+    type: [
+      {
+        questionId: String,
+        answer: String,
+      },
+    ],
+    required: true,
+  })
+  answers: { questionId: string; answer: string }[];
 }
 
 export const ResponseSchema = SchemaFactory.createForClass(Response);
