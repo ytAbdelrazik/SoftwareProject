@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Progress } from './progres.schema';
+import { Progress } from './progress.schema';
 import { UpdateProgressDto } from './dtos/update-progress.dto';
 
 @Injectable()

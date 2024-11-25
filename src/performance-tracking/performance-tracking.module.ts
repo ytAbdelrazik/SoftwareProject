@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PerformanceTrackingController } from './performance-tracking.controller';
 import { PerformanceTrackingService } from './performance-tracking.service';
-import { Progress, ProgressSchema } from './progres.schema';
+import { Progress, ProgressSchema } from './progress.schema';
 
 @Module({
     imports: [
