@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Recommendation } from './recommendation.service';
---DTO??
+import { Controller, Post, Get, Delete, Body, Param } from '@nestjs/common';
+import { RecommendationService } from './recommendation.service';
 
-@Injectable()
-export class InteractionService {
-  constructor(
-    @InjectModel(UserInteraction.name)
-    private interactionModel: Model<UserInteractionDocument>,
-  ) {}
+@Controller('recommendations')
+export class RecommendationController {
+  constructor(private readonly recommendationService: RecommendationService) {}
+
+  @Post()
+  async createRecommendation(
+    @Body('userId') userId: string,
+    @Body('recommendedItems') recommendedItems: string[],
+  ) {
+    return this.recommendationService.createRecommendation(userId, recommendedItems);
+  }
+
+  
+}
