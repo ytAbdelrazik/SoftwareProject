@@ -21,7 +21,5 @@ export class CreateCourseDto {
   @IsEnum(['Beginner', 'Intermediate', 'Advanced'])
   difficultyLevel: string;
 
-  @IsString()
-  @IsNotEmpty()
-  createdBy: string;
+ 
 }
