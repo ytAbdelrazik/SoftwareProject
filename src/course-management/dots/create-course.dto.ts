@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum, IsArray } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
@@ -24,4 +24,8 @@ export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   createdBy: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  multimedia: string[];
 }

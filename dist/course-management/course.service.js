@@ -21,9 +21,19 @@ let CourseService = class CourseService {
     constructor(courseModel) {
         this.courseModel = courseModel;
     }
-    async createCourse(courseData) {
-        const newCourse = new this.courseModel(courseData);
-        return newCourse.save();
+    async createCourse(createCourseDto) {
+        const newCourse = await this.courseModel.create(createCourseDto);
+        return newCourse;
+    }
+    async updateCourse(courseId, updateCourseDto) {
+        return this.courseModel.findOneAndUpdate({ courseId }, updateCourseDto, { new: true });
+    }
+    async addMultimedia(courseId, multimediaUrl) {
+        const course = await this.courseModel.findOne({ courseId });
+        if (!course)
+            throw new Error('Course not found');
+        course.multimedia.push(multimediaUrl);
+        return course.save();
     }
 };
 exports.CourseService = CourseService;

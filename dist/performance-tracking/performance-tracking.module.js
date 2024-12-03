@@ -8,15 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PerformanceTrackingModule = void 0;
 const common_1 = require("@nestjs/common");
+const mongoose_1 = require("@nestjs/mongoose");
 const performance_tracking_controller_1 = require("./performance-tracking.controller");
 const performance_tracking_service_1 = require("./performance-tracking.service");
+const progress_schema_1 = require("./progress.schema");
 let PerformanceTrackingModule = class PerformanceTrackingModule {
 };
 exports.PerformanceTrackingModule = PerformanceTrackingModule;
 exports.PerformanceTrackingModule = PerformanceTrackingModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            mongoose_1.MongooseModule.forRoot('mongodb+srv://hamza:fo2sheldoksh@cluster0.l8ikh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
+            mongoose_1.MongooseModule.forFeature([{ name: progress_schema_1.Progress.name, schema: progress_schema_1.ProgressSchema }]),
+        ],
         controllers: [performance_tracking_controller_1.PerformanceTrackingController],
-        providers: [performance_tracking_service_1.PerformanceTrackingService]
+        providers: [performance_tracking_service_1.PerformanceTrackingService],
     })
 ], PerformanceTrackingModule);
 //# sourceMappingURL=performance-tracking.module.js.map

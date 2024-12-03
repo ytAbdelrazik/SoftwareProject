@@ -1,13 +1,27 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Put, Body, Param, Patch } from '@nestjs/common';
 import { CourseService } from './course.service';
-import { Course } from './course.schema';
+import { CreateCourseDto } from './dots/create-course.dto';
+import { UpdateCourseDto } from './dots/update-course.dto';
 
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
-  @Post('create')
-  async createCourse(@Body() courseData: Partial<Course>) {
-    return this.courseService.createCourse(courseData);
+  // Create a new course
+  @Post()
+  async createCourse(@Body() createCourseDto: CreateCourseDto) {
+    return this.courseService.createCourse(createCourseDto);
+  }
+
+  // Update an existing course
+  @Put(':id')
+  async updateCourse(@Param('id') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
+    return this.courseService.updateCourse(courseId, updateCourseDto);
+  }
+
+  // Add a multimedia resource to a course
+  @Patch(':id/multimedia')
+  async addMultimedia(@Param('id') courseId: string, @Body('url') multimediaUrl: string) {
+    return this.courseService.addMultimedia(courseId, multimediaUrl);
   }
 }

@@ -26,6 +26,9 @@ export class Course {
 
     @Prop({ required: true, default: Date.now })
     createdAt: Date;
+
+    @Prop({ type: [String], default: [] })
+    multimedia: string[]; 
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

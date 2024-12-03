@@ -10,7 +10,7 @@ import{CourseModule} from"src/course-management/course.module"
 import{ModuleModule} from "src/course-management/module.module"
 @Module({
   imports: [
-  MongooseModule.forRoot('mongodb+srv://yt:yt123@cluster0.l8ikh.mongodb.net'), 
+  MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'), 
   UserModule,ResponseModule,InteractionModule,RecommendationModule,PerformanceTrackingModule,ModuleModule,InteractiveModulesModule,CourseModule
   ],
   controllers: [],

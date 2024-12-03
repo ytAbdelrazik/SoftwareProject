@@ -9,6 +9,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
+const users_module_1 = require("./user-managment/users.module");
+const responses_module_1 = require("./interactive-modules/responses.module");
+const user_interaction_module_1 = require("./recommedation-engine/user-interaction.module");
+const recommendation_module_1 = require("./recommedation-engine/recommendation.module");
+const performance_tracking_module_1 = require("./performance-tracking/performance-tracking.module");
+const quizzes_module_1 = require("./interactive-modules/quizzes.module");
 const course_module_1 = require("./course-management/course.module");
 const module_module_1 = require("./course-management/module.module");
 let AppModule = class AppModule {
@@ -17,9 +23,8 @@ exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net/'),
-            course_module_1.CourseModule,
-            module_module_1.ModuleModule,
+            mongoose_1.MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'),
+            users_module_1.UserModule, responses_module_1.ResponseModule, user_interaction_module_1.InteractionModule, recommendation_module_1.RecommendationModule, performance_tracking_module_1.PerformanceTrackingModule, module_module_1.ModuleModule, quizzes_module_1.InteractiveModulesModule, course_module_1.CourseModule
         ],
         controllers: [],
         providers: [],
