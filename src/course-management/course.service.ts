@@ -15,7 +15,10 @@ export class CourseService {
     return newCourse;
   }
   
-
+  async getAllCourses(): Promise<Course[]> {
+    return this.courseModel.find().exec(); // Fetch all courses from the database
+  }
+  
   // Update an existing course
   async updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     return this.courseModel.findOneAndUpdate({ courseId }, updateCourseDto, { new: true });

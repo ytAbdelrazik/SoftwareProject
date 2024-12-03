@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Body, Param, Patch } from '@nestjs/common';
+import { Controller, Post, Put, Body, Param, Patch, Get } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
@@ -6,7 +6,11 @@ import { UpdateCourseDto } from './dots/update-course.dto';
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
-
+  
+  @Get()
+  async getAllCourses() {
+    return this.courseService.getAllCourses();
+  }
   // Create a new course
   @Post()
   async createCourse(@Body() createCourseDto: CreateCourseDto) {
