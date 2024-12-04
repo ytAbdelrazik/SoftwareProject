@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Body, Param, Patch, Get } from '@nestjs/common';
+import { Controller, Post, Put, Body, Param, Patch, Get, BadRequestException } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
@@ -17,10 +17,25 @@ export class CourseController {
     return this.courseService.createCourse(createCourseDto);
   }
 
-  // Update an existing course
+
+  // Update a course with versioning
   @Put(':id')
   async updateCourse(@Param('id') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
     return this.courseService.updateCourse(courseId, updateCourseDto);
+  }
+
+  // Revert to a specific version
+  @Post(':id/revert')
+  async revertToVersion(@Param('id') courseId: string, @Body('version') version: string) {
+    return this.courseService.revertToVersion(courseId, version);
+  }
+  
+  
+
+  // Get all versions of a course
+  @Get(':id/versions')
+  async getVersions(@Param('id') courseId: string) {
+    return this.courseService.getVersions(courseId);
   }
 
   // Add a multimedia resource to a course

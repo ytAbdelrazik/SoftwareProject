@@ -29,6 +29,13 @@ export class Course {
 
     @Prop({ type: [String], default: [] })
     multimedia: string[]; 
+
+    @Prop({ type: Array, default: [] })
+  versions: Array<{
+    version: string;
+    content: Record<string, any>; // Snapshot of the course state
+    updatedAt: Date;
+  }>;
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

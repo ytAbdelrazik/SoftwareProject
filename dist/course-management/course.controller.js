@@ -21,17 +21,32 @@ let CourseController = class CourseController {
     constructor(courseService) {
         this.courseService = courseService;
     }
+    async getAllCourses() {
+        return this.courseService.getAllCourses();
+    }
     async createCourse(createCourseDto) {
         return this.courseService.createCourse(createCourseDto);
     }
     async updateCourse(courseId, updateCourseDto) {
         return this.courseService.updateCourse(courseId, updateCourseDto);
     }
+    async revertToVersion(courseId, version) {
+        return this.courseService.revertToVersion(courseId, version);
+    }
+    async getVersions(courseId) {
+        return this.courseService.getVersions(courseId);
+    }
     async addMultimedia(courseId, multimediaUrl) {
         return this.courseService.addMultimedia(courseId, multimediaUrl);
     }
 };
 exports.CourseController = CourseController;
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getAllCourses", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -47,6 +62,21 @@ __decorate([
     __metadata("design:paramtypes", [String, update_course_dto_1.UpdateCourseDto]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "updateCourse", null);
+__decorate([
+    (0, common_1.Post)(':id/revert'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)('version')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "revertToVersion", null);
+__decorate([
+    (0, common_1.Get)(':id/versions'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getVersions", null);
 __decorate([
     (0, common_1.Patch)(':id/multimedia'),
     __param(0, (0, common_1.Param)('id')),

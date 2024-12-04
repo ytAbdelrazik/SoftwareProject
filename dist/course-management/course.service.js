@@ -25,8 +25,55 @@ let CourseService = class CourseService {
         const newCourse = await this.courseModel.create(createCourseDto);
         return newCourse;
     }
+    async getAllCourses() {
+        return this.courseModel.find().exec();
+    }
     async updateCourse(courseId, updateCourseDto) {
-        return this.courseModel.findOneAndUpdate({ courseId }, updateCourseDto, { new: true });
+        const course = await this.courseModel.findOne({ courseId });
+        if (!course) {
+            throw new common_1.NotFoundException(`Course with ID ${courseId} not found.`);
+        }
+        const newVersion = {
+            version: `v${course.versions.length + 1}`,
+            content: { ...course.toObject() },
+            updatedAt: new Date(),
+        };
+        course.versions.push(newVersion);
+        Object.assign(course, updateCourseDto);
+        return course.save();
+    }
+    async revertToVersion(courseId, version) {
+        try {
+            const course = await this.courseModel.findOne({ courseId });
+            if (!course) {
+                throw new common_1.NotFoundException(`Course with ID ${courseId} not found.`);
+            }
+            const versionData = course.versions.find((v) => v.version === version);
+            if (!versionData) {
+                throw new common_1.NotFoundException(`Version ${version} not found for course ${courseId}.`);
+            }
+            console.log('Reverting to version data:', versionData);
+            const restoredContent = { ...versionData.content };
+            delete restoredContent.versions;
+            Object.assign(course, restoredContent);
+            course.versions.push({
+                version: `v${course.versions.length + 1}`,
+                content: { ...restoredContent },
+                updatedAt: new Date(),
+            });
+            return course.save();
+        }
+        catch (error) {
+            console.error('Error in revertToVersion:', error.message);
+            throw new common_1.InternalServerErrorException(`Failed to revert course version: ${error.message}`);
+        }
+    }
+    async getVersions(courseId) {
+        const course = await this.courseModel.findOne({ courseId });
+        if (!course) {
+            throw new common_1.NotFoundException(`Course with ID ${courseId} not found.`);
+        }
+        return course.versions.map(({ version, updatedAt }) => ({ version, updatedAt }));
     }
     async addMultimedia(courseId, multimediaUrl) {
         const course = await this.courseModel.findOne({ courseId });

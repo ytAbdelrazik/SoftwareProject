@@ -9,6 +9,11 @@ export declare class Course {
     createdBy: string;
     createdAt: Date;
     multimedia: string[];
+    versions: Array<{
+        version: string;
+        content: Record<string, any>;
+        updatedAt: Date;
+    }>;
 }
 export declare const CourseSchema: import("mongoose").Schema<Course, import("mongoose").Model<Course, any, any, any, Document<unknown, any, Course> & Course & {
     _id: import("mongoose").Types.ObjectId;

@@ -46,6 +46,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: [String], default: [] }),
     __metadata("design:type", Array)
 ], Course.prototype, "multimedia", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Array, default: [] }),
+    __metadata("design:type", Array)
+], Course.prototype, "versions", void 0);
 exports.Course = Course = __decorate([
     (0, mongoose_1.Schema)()
 ], Course);
