@@ -19,7 +19,7 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "courseId", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: true, index: true }),
     __metadata("design:type", String)
 ], Course.prototype, "title", void 0);
 __decorate([
@@ -27,15 +27,15 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "description", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: true, index: true }),
     __metadata("design:type", String)
 ], Course.prototype, "category", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: ['Beginner', 'Intermediate', 'Advanced'] }),
+    (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Course.prototype, "difficultyLevel", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ required: true, index: true }),
     __metadata("design:type", String)
 ], Course.prototype, "createdBy", void 0);
 __decorate([
@@ -54,4 +54,6 @@ exports.Course = Course = __decorate([
     (0, mongoose_1.Schema)()
 ], Course);
 exports.CourseSchema = mongoose_1.SchemaFactory.createForClass(Course);
+exports.CourseSchema.index({ title: 'text', category: 'text', createdBy: 'text' });
+exports.CourseSchema.index({ category: 1 });
 //# sourceMappingURL=course.schema.js.map
