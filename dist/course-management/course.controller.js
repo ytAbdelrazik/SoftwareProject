@@ -33,6 +33,24 @@ let CourseController = class CourseController {
     async revertToVersion(courseId, version) {
         return this.courseService.revertToVersion(courseId, version);
     }
+    async searchCourses(query) {
+        if (!query) {
+            throw new Error('Search query cannot be empty.');
+        }
+        return this.courseService.searchCourses(query);
+    }
+    async searchStudents(query) {
+        if (!query) {
+            throw new Error('Search query cannot be empty.');
+        }
+        return this.courseService.searchStudents(query);
+    }
+    async searchInstructors(query) {
+        if (!query) {
+            throw new Error('Search query cannot be empty.');
+        }
+        return this.courseService.searchInstructors(query);
+    }
     async getVersions(courseId) {
         return this.courseService.getVersions(courseId);
     }
@@ -70,6 +88,27 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "revertToVersion", null);
+__decorate([
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchCourses", null);
+__decorate([
+    (0, common_1.Get)('students/search'),
+    __param(0, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchStudents", null);
+__decorate([
+    (0, common_1.Get)('instructors/search'),
+    __param(0, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchInstructors", null);
 __decorate([
     (0, common_1.Get)(':id/versions'),
     __param(0, (0, common_1.Param)('id')),

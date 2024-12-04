@@ -1,4 +1,4 @@
-import { Controller, Post, Put, Body, Param, Patch, Get, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Put, Body, Param, Patch, Get, BadRequestException, Query } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
@@ -30,6 +30,45 @@ export class CourseController {
     return this.courseService.revertToVersion(courseId, version);
   }
   
+
+  /**
+   * Search for courses by title, category, or instructor.
+   * @param {string} query - The search query string.
+   * @returns {Promise<any[]>} - The list of matching courses.
+   */
+  @Get('search')
+  async searchCourses(@Query('q') query: string) {
+    if (!query) {
+      throw new Error('Search query cannot be empty.');
+    }
+    return this.courseService.searchCourses(query);
+  }
+
+  /**
+   * Search for students by name, email, or ID.
+   * @param {string} query - The search query string.
+   * @returns {Promise<any[]>} - The list of matching students.
+   */
+  @Get('students/search')
+  async searchStudents(@Query('q') query: string) {
+    if (!query) {
+      throw new Error('Search query cannot be empty.');
+    }
+    return this.courseService.searchStudents(query);
+  }
+
+  /**
+   * Search for instructors by name, email, or ID.
+   * @param {string} query - The search query string.
+   * @returns {Promise<any[]>} - The list of matching instructors.
+   */
+  @Get('instructors/search')
+  async searchInstructors(@Query('q') query: string) {
+    if (!query) {
+      throw new Error('Search query cannot be empty.');
+    }
+    return this.courseService.searchInstructors(query);
+  }
   
 
   // Get all versions of a course

@@ -4,10 +4,16 @@ import { Model } from 'mongoose';
 import { Course, CourseDocument } from './course.schema';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
+import { StudentDocument } from './student.schema';
+import { InstructorDocument } from './instructor.schema';
 
 @Injectable()
 export class CourseService {
-  constructor(@InjectModel(Course.name) private courseModel: Model<CourseDocument>) {}
+  constructor(
+  @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+  @InjectModel('Student') private studentModel: Model<StudentDocument>,
+  @InjectModel('Instructor') private instructorModel: Model<InstructorDocument>, 
+){}
 
   /**
    * Creates a new course in the database.
@@ -147,5 +153,51 @@ export class CourseService {
 
     // Save the updated course document to the database.
     return course.save();
+  }
+
+   
+/**
+   * Search for courses by title, category, or instructor.
+   * @param {string} query - The search query string.
+   * @returns {Promise<Course[]>} - The list of matching courses.
+   */
+async searchCourses(query: string): Promise<Course[]> {
+  return this.courseModel.find({
+    $or: [
+      { title: { $regex: query, $options: 'i' } }, // Search by title
+      { category: { $regex: query, $options: 'i' } }, // Search by category
+      { createdBy: { $regex: query, $options: 'i' } }, // Search by instructor ID
+    ],
+  }).exec();
+}
+
+/**
+   * Search for students by name, email, or ID.
+   * @param {string} query - The search query string.
+   * @returns {Promise<any[]>} - The list of matching students.
+   */
+async searchStudents(query: string): Promise<any[]> {
+  return this.studentModel.find({
+    $or: [
+      { name: { $regex: query, $options: 'i' } }, // Search by name
+      { email: { $regex: query, $options: 'i' } }, // Search by email
+      { id: { $regex: query, $options: 'i' } }, // Search by student ID
+    ],
+  }).exec();
+}
+
+  /**
+   * Search for instructors by name, email, or ID.
+   * @param {string} query - The search query string.
+   * @returns {Promise<any[]>} - The list of matching instructors.
+   */
+  async searchInstructors(query: string): Promise<any[]> {
+    return this.instructorModel.find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } }, // Search by name
+        { email: { $regex: query, $options: 'i' } }, // Search by email
+        { id: { $regex: query, $options: 'i' } }, // Search by instructor ID
+      ],
+    }).exec();
   }
 }

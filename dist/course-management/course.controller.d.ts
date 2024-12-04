@@ -8,6 +8,9 @@ export declare class CourseController {
     createCourse(createCourseDto: CreateCourseDto): Promise<import("./course.schema").Course>;
     updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<import("./course.schema").Course>;
     revertToVersion(courseId: string, version: string): Promise<import("./course.schema").Course>;
+    searchCourses(query: string): Promise<import("./course.schema").Course[]>;
+    searchStudents(query: string): Promise<any[]>;
+    searchInstructors(query: string): Promise<any[]>;
     getVersions(courseId: string): Promise<{
         version: string;
         updatedAt: Date;

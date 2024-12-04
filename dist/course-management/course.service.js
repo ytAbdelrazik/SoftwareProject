@@ -18,8 +18,10 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const course_schema_1 = require("./course.schema");
 let CourseService = class CourseService {
-    constructor(courseModel) {
+    constructor(courseModel, studentModel, instructorModel) {
         this.courseModel = courseModel;
+        this.studentModel = studentModel;
+        this.instructorModel = instructorModel;
     }
     async createCourse(createCourseDto) {
         const newCourse = await this.courseModel.create(createCourseDto);
@@ -77,16 +79,48 @@ let CourseService = class CourseService {
     }
     async addMultimedia(courseId, multimediaUrl) {
         const course = await this.courseModel.findOne({ courseId });
-        if (!course)
+        if (!course) {
             throw new Error('Course not found');
+        }
         course.multimedia.push(multimediaUrl);
         return course.save();
+    }
+    async searchCourses(query) {
+        return this.courseModel.find({
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { category: { $regex: query, $options: 'i' } },
+                { createdBy: { $regex: query, $options: 'i' } },
+            ],
+        }).exec();
+    }
+    async searchStudents(query) {
+        return this.studentModel.find({
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } },
+                { id: { $regex: query, $options: 'i' } },
+            ],
+        }).exec();
+    }
+    async searchInstructors(query) {
+        return this.instructorModel.find({
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } },
+                { id: { $regex: query, $options: 'i' } },
+            ],
+        }).exec();
     }
 };
 exports.CourseService = CourseService;
 exports.CourseService = CourseService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(course_schema_1.Course.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)('Student')),
+    __param(2, (0, mongoose_1.InjectModel)('Instructor')),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model])
 ], CourseService);
 //# sourceMappingURL=course.service.js.map

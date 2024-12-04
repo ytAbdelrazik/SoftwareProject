@@ -8,11 +8,16 @@ import{PerformanceTrackingModule} from "src/performance-tracking/performance-tra
 import{InteractiveModulesModule} from "src/interactive-modules/quizzes.module"
 import{CourseModule} from"src/course-management/course.module"
 import{ModuleModule} from "src/course-management/module.module"
+import { StudentSchema } from './course-management/student.schema';
+import { InstructorSchema } from './course-management/instructor.schema';
 @Module({
   imports: [
   MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'), 
-  UserModule,ResponseModule,InteractionModule,RecommendationModule,PerformanceTrackingModule,ModuleModule,InteractiveModulesModule,CourseModule
-  ],
+  UserModule,ResponseModule,InteractionModule,RecommendationModule,PerformanceTrackingModule,ModuleModule,InteractiveModulesModule,CourseModule,
+  MongooseModule.forFeature([
+    { name: 'Student', schema: StudentSchema },
+    { name: 'Instructor', schema: InstructorSchema },
+  ]),],
   controllers: [],
   providers: [],
 })
