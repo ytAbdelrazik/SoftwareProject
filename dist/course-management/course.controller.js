@@ -17,15 +17,16 @@ const common_1 = require("@nestjs/common");
 const course_service_1 = require("./course.service");
 const create_course_dto_1 = require("./dots/create-course.dto");
 const update_course_dto_1 = require("./dots/update-course.dto");
+const add_multimedia_dto_1 = require("./dots/add-multimedia.dto");
 let CourseController = class CourseController {
     constructor(courseService) {
         this.courseService = courseService;
     }
-    async getAllCourses() {
-        return this.courseService.getAllCourses();
-    }
     async createCourse(createCourseDto) {
         return this.courseService.createCourse(createCourseDto);
+    }
+    async getAllCourses() {
+        return this.courseService.getAllCourses();
     }
     async updateCourse(courseId, updateCourseDto) {
         return this.courseService.updateCourse(courseId, updateCourseDto);
@@ -33,38 +34,29 @@ let CourseController = class CourseController {
     async revertToVersion(courseId, version) {
         return this.courseService.revertToVersion(courseId, version);
     }
-    async searchCourses(query) {
-        if (!query) {
-            throw new Error('Search query cannot be empty.');
-        }
-        return this.courseService.searchCourses(query);
-    }
-    async searchStudents(query) {
-        if (!query) {
-            throw new Error('Search query cannot be empty.');
-        }
-        return this.courseService.searchStudents(query);
-    }
-    async searchInstructors(query) {
-        if (!query) {
-            throw new Error('Search query cannot be empty.');
-        }
-        return this.courseService.searchInstructors(query);
-    }
     async getVersions(courseId) {
         return this.courseService.getVersions(courseId);
     }
-    async addMultimedia(courseId, multimediaUrl) {
-        return this.courseService.addMultimedia(courseId, multimediaUrl);
+    async addMultimedia(courseId, multimediaDto) {
+        return this.courseService.addMultimedia(courseId, multimediaDto);
+    }
+    async removeMultimedia(courseId, multimediaId) {
+        return this.courseService.removeMultimedia(courseId, multimediaId);
+    }
+    async getMultimedia(courseId) {
+        return this.courseService.getMultimedia(courseId);
+    }
+    async searchCourses(query, limit = 10, offset = 0) {
+        return this.courseService.searchCourses(query, limit, offset);
+    }
+    async searchStudents(query, limit = 10, offset = 0) {
+        return this.courseService.searchStudents(query, limit, offset);
+    }
+    async searchInstructors(query, limit = 10, offset = 0) {
+        return this.courseService.searchInstructors(query, limit, offset);
     }
 };
 exports.CourseController = CourseController;
-__decorate([
-    (0, common_1.Get)(),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "getAllCourses", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -73,57 +65,84 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "createCourse", null);
 __decorate([
-    (0, common_1.Put)(':id'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getAllCourses", null);
+__decorate([
+    (0, common_1.Post)(':courseId'),
+    __param(0, (0, common_1.Param)('courseId')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, update_course_dto_1.UpdateCourseDto]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "updateCourse", null);
 __decorate([
-    (0, common_1.Post)(':id/revert'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('version')),
+    (0, common_1.Post)(':courseId/revert'),
+    __param(0, (0, common_1.Param)('courseId')),
+    __param(1, (0, common_1.Query)('version')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "revertToVersion", null);
 __decorate([
-    (0, common_1.Get)('search'),
-    __param(0, (0, common_1.Query)('q')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "searchCourses", null);
-__decorate([
-    (0, common_1.Get)('students/search'),
-    __param(0, (0, common_1.Query)('q')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "searchStudents", null);
-__decorate([
-    (0, common_1.Get)('instructors/search'),
-    __param(0, (0, common_1.Query)('q')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], CourseController.prototype, "searchInstructors", null);
-__decorate([
-    (0, common_1.Get)(':id/versions'),
-    __param(0, (0, common_1.Param)('id')),
+    (0, common_1.Get)(':courseId/versions'),
+    __param(0, (0, common_1.Param)('courseId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], CourseController.prototype, "getVersions", null);
 __decorate([
-    (0, common_1.Patch)(':id/multimedia'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('url')),
+    (0, common_1.Post)(':courseId/multimedia'),
+    __param(0, (0, common_1.Param)('courseId')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, add_multimedia_dto_1.AddMultimediaDto]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "addMultimedia", null);
+__decorate([
+    (0, common_1.Delete)(':courseId/multimedia/:multimediaId'),
+    __param(0, (0, common_1.Param)('courseId')),
+    __param(1, (0, common_1.Param)('multimediaId')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
-], CourseController.prototype, "addMultimedia", null);
+], CourseController.prototype, "removeMultimedia", null);
+__decorate([
+    (0, common_1.Get)(':courseId/multimedia'),
+    __param(0, (0, common_1.Param)('courseId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "getMultimedia", null);
+__decorate([
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('offset')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchCourses", null);
+__decorate([
+    (0, common_1.Get)('students/search'),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('offset')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchStudents", null);
+__decorate([
+    (0, common_1.Get)('instructors/search'),
+    __param(0, (0, common_1.Query)('q')),
+    __param(1, (0, common_1.Query)('limit')),
+    __param(2, (0, common_1.Query)('offset')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", Promise)
+], CourseController.prototype, "searchInstructors", null);
 exports.CourseController = CourseController = __decorate([
     (0, common_1.Controller)('courses'),
     __metadata("design:paramtypes", [course_service_1.CourseService])

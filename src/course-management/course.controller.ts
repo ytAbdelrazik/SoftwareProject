@@ -1,85 +1,79 @@
-import { Controller, Post, Put, Body, Param, Patch, Get, BadRequestException, Query } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Query } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
+import { AddMultimediaDto } from './dots/add-multimedia.dto';
 
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
-  
-  @Get()
-  async getAllCourses() {
-    return this.courseService.getAllCourses();
-  }
-  // Create a new course
+
   @Post()
   async createCourse(@Body() createCourseDto: CreateCourseDto) {
     return this.courseService.createCourse(createCourseDto);
   }
+  
 
+  @Get()
+  async getAllCourses() {
+    return this.courseService.getAllCourses();
+  }
 
-  // Update a course with versioning
-  @Put(':id')
-  async updateCourse(@Param('id') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
+  @Post(':courseId')
+  async updateCourse(@Param('courseId') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
     return this.courseService.updateCourse(courseId, updateCourseDto);
   }
 
-  // Revert to a specific version
-  @Post(':id/revert')
-  async revertToVersion(@Param('id') courseId: string, @Body('version') version: string) {
+  @Post(':courseId/revert')
+  async revertToVersion(@Param('courseId') courseId: string, @Query('version') version: string) {
     return this.courseService.revertToVersion(courseId, version);
   }
-  
 
-  /**
-   * Search for courses by title, category, or instructor.
-   * @param {string} query - The search query string.
-   * @returns {Promise<any[]>} - The list of matching courses.
-   */
-  @Get('search')
-  async searchCourses(@Query('q') query: string) {
-    if (!query) {
-      throw new Error('Search query cannot be empty.');
-    }
-    return this.courseService.searchCourses(query);
-  }
-
-  /**
-   * Search for students by name, email, or ID.
-   * @param {string} query - The search query string.
-   * @returns {Promise<any[]>} - The list of matching students.
-   */
-  @Get('students/search')
-  async searchStudents(@Query('q') query: string) {
-    if (!query) {
-      throw new Error('Search query cannot be empty.');
-    }
-    return this.courseService.searchStudents(query);
-  }
-
-  /**
-   * Search for instructors by name, email, or ID.
-   * @param {string} query - The search query string.
-   * @returns {Promise<any[]>} - The list of matching instructors.
-   */
-  @Get('instructors/search')
-  async searchInstructors(@Query('q') query: string) {
-    if (!query) {
-      throw new Error('Search query cannot be empty.');
-    }
-    return this.courseService.searchInstructors(query);
-  }
-  
-
-  // Get all versions of a course
-  @Get(':id/versions')
-  async getVersions(@Param('id') courseId: string) {
+  @Get(':courseId/versions')
+  async getVersions(@Param('courseId') courseId: string) {
     return this.courseService.getVersions(courseId);
   }
 
-  // Add a multimedia resource to a course
-  @Patch(':id/multimedia')
-  async addMultimedia(@Param('id') courseId: string, @Body('url') multimediaUrl: string) {
-    return this.courseService.addMultimedia(courseId, multimediaUrl);
+  @Post(':courseId/multimedia')
+  async addMultimedia(@Param('courseId') courseId: string, @Body() multimediaDto: AddMultimediaDto) {
+    return this.courseService.addMultimedia(courseId, multimediaDto);
   }
+
+  @Delete(':courseId/multimedia/:multimediaId')
+  async removeMultimedia(@Param('courseId') courseId: string, @Param('multimediaId') multimediaId: string) {
+    return this.courseService.removeMultimedia(courseId, multimediaId);
+  }
+
+  @Get(':courseId/multimedia')
+  async getMultimedia(@Param('courseId') courseId: string) {
+    return this.courseService.getMultimedia(courseId);
+  }
+
+  @Get('search')
+  async searchCourses(
+    @Query('q') query: string,
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ) {
+    return this.courseService.searchCourses(query, limit, offset);
+  }
+  
+  @Get('students/search')
+  async searchStudents(
+    @Query('q') query: string,
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ) {
+    return this.courseService.searchStudents(query, limit, offset);
+  }
+  
+  @Get('instructors/search')
+  async searchInstructors(
+    @Query('q') query: string,
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ) {
+    return this.courseService.searchInstructors(query, limit, offset);
+  }
+  
 }

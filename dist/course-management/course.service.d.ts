@@ -4,6 +4,7 @@ import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
 import { StudentDocument } from './student.schema';
 import { InstructorDocument } from './instructor.schema';
+import { AddMultimediaDto } from './dots/add-multimedia.dto';
 export declare class CourseService {
     private courseModel;
     private studentModel;
@@ -17,8 +18,14 @@ export declare class CourseService {
         version: string;
         updatedAt: Date;
     }>>;
-    addMultimedia(courseId: string, multimediaUrl: string): Promise<Course>;
-    searchCourses(query: string): Promise<Course[]>;
-    searchStudents(query: string): Promise<any[]>;
-    searchInstructors(query: string): Promise<any[]>;
+    addMultimedia(courseId: string, multimediaDto: AddMultimediaDto): Promise<Course>;
+    removeMultimedia(courseId: string, multimediaId: string): Promise<Course>;
+    getMultimedia(courseId: string): Promise<Array<{
+        resourceType: string;
+        url: string;
+        title: string;
+    }>>;
+    searchCourses(query: string, limit?: number, skip?: number): Promise<Course[]>;
+    searchStudents(query: string, limit?: number, skip?: number): Promise<any[]>;
+    searchInstructors(query: string, limit?: number, skip?: number): Promise<any[]>;
 }

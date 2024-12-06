@@ -8,11 +8,19 @@ export declare class Course {
     difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
     createdBy: string;
     createdAt: Date;
-    multimedia: string[];
+    multimedia: Array<{
+        [x: string]: any;
+        resourceType: 'video' | 'pdf' | 'image';
+        url: string;
+        title: string;
+        description?: string;
+        uploadedAt: Date;
+    }>;
     versions: Array<{
         version: string;
         content: Record<string, any>;
         updatedAt: Date;
+        uploadedAt?: Date;
     }>;
 }
 export declare const CourseSchema: import("mongoose").Schema<Course, import("mongoose").Model<Course, any, any, any, Document<unknown, any, Course> & Course & {

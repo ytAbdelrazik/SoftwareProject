@@ -19,7 +19,7 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "courseId", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, index: true }),
+    (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Course.prototype, "title", void 0);
 __decorate([
@@ -27,7 +27,7 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "description", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, index: true }),
+    (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Course.prototype, "category", void 0);
 __decorate([
@@ -35,7 +35,7 @@ __decorate([
     __metadata("design:type", String)
 ], Course.prototype, "difficultyLevel", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, index: true }),
+    (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Course.prototype, "createdBy", void 0);
 __decorate([
@@ -43,11 +43,31 @@ __decorate([
     __metadata("design:type", Date)
 ], Course.prototype, "createdAt", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    (0, mongoose_1.Prop)({
+        type: [
+            {
+                resourceType: { type: String, enum: ['video', 'pdf', 'image'], required: true },
+                url: { type: String, required: true },
+                title: { type: String, required: true },
+                description: { type: String },
+                uploadedAt: { type: Date, default: Date.now },
+            },
+        ],
+        default: [],
+    }),
     __metadata("design:type", Array)
 ], Course.prototype, "multimedia", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Array, default: [] }),
+    (0, mongoose_1.Prop)({
+        type: [
+            {
+                version: { type: String, required: true },
+                content: { type: Object, required: true },
+                updatedAt: { type: Date, default: Date.now },
+            },
+        ],
+        default: [],
+    }),
     __metadata("design:type", Array)
 ], Course.prototype, "versions", void 0);
 exports.Course = Course = __decorate([

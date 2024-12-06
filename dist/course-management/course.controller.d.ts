@@ -1,19 +1,26 @@
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
+import { AddMultimediaDto } from './dots/add-multimedia.dto';
 export declare class CourseController {
     private readonly courseService;
     constructor(courseService: CourseService);
-    getAllCourses(): Promise<import("./course.schema").Course[]>;
     createCourse(createCourseDto: CreateCourseDto): Promise<import("./course.schema").Course>;
+    getAllCourses(): Promise<import("./course.schema").Course[]>;
     updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<import("./course.schema").Course>;
     revertToVersion(courseId: string, version: string): Promise<import("./course.schema").Course>;
-    searchCourses(query: string): Promise<import("./course.schema").Course[]>;
-    searchStudents(query: string): Promise<any[]>;
-    searchInstructors(query: string): Promise<any[]>;
     getVersions(courseId: string): Promise<{
         version: string;
         updatedAt: Date;
     }[]>;
-    addMultimedia(courseId: string, multimediaUrl: string): Promise<import("./course.schema").Course>;
+    addMultimedia(courseId: string, multimediaDto: AddMultimediaDto): Promise<import("./course.schema").Course>;
+    removeMultimedia(courseId: string, multimediaId: string): Promise<import("./course.schema").Course>;
+    getMultimedia(courseId: string): Promise<{
+        resourceType: string;
+        url: string;
+        title: string;
+    }[]>;
+    searchCourses(query: string, limit?: number, offset?: number): Promise<import("./course.schema").Course[]>;
+    searchStudents(query: string, limit?: number, offset?: number): Promise<any[]>;
+    searchInstructors(query: string, limit?: number, offset?: number): Promise<any[]>;
 }

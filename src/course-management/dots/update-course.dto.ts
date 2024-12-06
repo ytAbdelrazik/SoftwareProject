@@ -1,6 +1,15 @@
-import { IsOptional, IsString, IsArray, IsEnum } from 'class-validator';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export class UpdateCourseDto {
+class MultimediaDto {
+  @IsString()
+  @IsOptional()
+  resourceType?: string;
+
+  @IsString()
+  @IsOptional()
+  url?: string;
+
   @IsString()
   @IsOptional()
   title?: string;
@@ -8,18 +17,24 @@ export class UpdateCourseDto {
   @IsString()
   @IsOptional()
   description?: string;
+}
 
-  @IsString()
+export class UpdateCourseDto {
   @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
   category?: string;
 
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => MultimediaDto)
   @IsOptional()
-  @IsString({ each: true })
-  multimedia?: string[];
-
-  @IsString()
-  @IsOptional()
-  @IsEnum(['Beginner', 'Intermediate', 'Advanced'])
-  difficultyLevel: string;
+  multimedia?: MultimediaDto[];
 }

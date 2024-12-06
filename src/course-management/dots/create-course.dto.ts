@@ -1,4 +1,23 @@
-import { IsString, IsNotEmpty, IsEnum, IsArray } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class MultimediaDto {
+  @IsString()
+  @IsNotEmpty()
+  resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
 
 export class CreateCourseDto {
   @IsString()
@@ -17,15 +36,17 @@ export class CreateCourseDto {
   @IsNotEmpty()
   category: string;
 
-  @IsString()
-  @IsEnum(['Beginner', 'Intermediate', 'Advanced'])
-  difficultyLevel: string;
+  @IsEnum(['Beginner', 'Intermediate', 'Advanced']) // Allow only these values
+  @IsNotEmpty()
+  difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
 
   @IsString()
   @IsNotEmpty()
   createdBy: string;
 
   @IsArray()
-  @IsString({ each: true })
-  multimedia: string[];
+  @ValidateNested({ each: true })
+  @Type(() => MultimediaDto)
+  @IsOptional()
+  multimedia?: MultimediaDto[];
 }

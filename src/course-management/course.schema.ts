@@ -6,34 +6,62 @@ export type CourseDocument = Course & Document;
 @Schema()
 export class Course {
   @Prop({ required: true, unique: true })
-  courseId: string; // Unique identifier for the course
-
-  @Prop({ required: true, index: true })
-  title: string; // Title of the course (Indexed for faster text searches)
+  courseId: string;
 
   @Prop({ required: true })
-  description: string; // Brief description of the course
-
-  @Prop({ required: true, index: true })
-  category: string; // Course category (e.g., Math, CS) (Indexed for filtering)
+  title: string;
 
   @Prop({ required: true })
-  difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced'; // Difficulty level of the course
+  description: string;
 
-  @Prop({ required: true, index: true })
-  createdBy: string; // ID or name of the instructor who created the course (Indexed for instructor-based queries)
+  @Prop({ required: true })
+  category: string;
+
+  @Prop({ required: true })
+  difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
+
+  @Prop({ required: true })
+  createdBy: string;
 
   @Prop({ required: true, default: Date.now })
-  createdAt: Date; // Timestamp of course creation
+  createdAt: Date;
 
-  @Prop({ type: [String], default: [] })
-  multimedia: string[]; // Array of multimedia resource URLs (e.g., videos, PDFs)
+  @Prop({
+    type: [
+      {
+        resourceType: { type: String, enum: ['video', 'pdf', 'image'], required: true },
+        url: { type: String, required: true },
+        title: { type: String, required: true },
+        description: { type: String },
+        uploadedAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
+  multimedia: Array<{
+    [x: string]: any;
+    resourceType: 'video' | 'pdf' | 'image';
+    url: string;
+    title: string;
+    description?: string;
+    uploadedAt: Date;
+  }>;
 
-  @Prop({ type: Array, default: [] })
+  @Prop({
+    type: [
+      {
+        version: { type: String, required: true },
+        content: { type: Object, required: true },
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
+    default: [],
+  })
   versions: Array<{
-    version: string; // Version identifier (e.g., v1, v2)
-    content: Record<string, any>; // Snapshot of the course state
-    updatedAt: Date; // Timestamp when this version was created
+    version: string;
+    content: Record<string, any>;
+    updatedAt: Date;
+    uploadedAt?: Date; // Optional field
   }>;
 }
 

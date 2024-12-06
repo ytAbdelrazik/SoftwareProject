@@ -58,11 +58,6 @@ let CourseService = class CourseService {
             const restoredContent = { ...versionData.content };
             delete restoredContent.versions;
             Object.assign(course, restoredContent);
-            course.versions.push({
-                version: `v${course.versions.length + 1}`,
-                content: { ...restoredContent },
-                updatedAt: new Date(),
-            });
             return course.save();
         }
         catch (error) {
@@ -77,40 +72,74 @@ let CourseService = class CourseService {
         }
         return course.versions.map(({ version, updatedAt }) => ({ version, updatedAt }));
     }
-    async addMultimedia(courseId, multimediaUrl) {
+    async addMultimedia(courseId, multimediaDto) {
         const course = await this.courseModel.findOne({ courseId });
-        if (!course) {
-            throw new Error('Course not found');
+        if (!course)
+            throw new common_1.NotFoundException('Course not found');
+        if (!Array.isArray(course.multimedia)) {
+            course.multimedia = [];
         }
-        course.multimedia.push(multimediaUrl);
+        const exists = course.multimedia.some((media) => media.url === multimediaDto.url);
+        if (exists)
+            throw new Error('Multimedia resource with this URL already exists.');
+        const multimediaWithUploadedAt = {
+            ...multimediaDto,
+            uploadedAt: multimediaDto.uploadedAt || new Date(),
+        };
+        course.multimedia.push(multimediaWithUploadedAt);
         return course.save();
     }
-    async searchCourses(query) {
-        return this.courseModel.find({
+    async removeMultimedia(courseId, multimediaId) {
+        const course = await this.courseModel.findOne({ courseId });
+        if (!course)
+            throw new common_1.NotFoundException('Course not found');
+        course.multimedia = course.multimedia.filter((media) => media._id.toString() !== multimediaId);
+        return course.save();
+    }
+    async getMultimedia(courseId) {
+        const course = await this.courseModel.findOne({ courseId });
+        if (!course)
+            throw new common_1.NotFoundException('Course not found');
+        return course.multimedia;
+    }
+    async searchCourses(query, limit = 10, skip = 0) {
+        return this.courseModel
+            .find({
             $or: [
                 { title: { $regex: query, $options: 'i' } },
                 { category: { $regex: query, $options: 'i' } },
                 { createdBy: { $regex: query, $options: 'i' } },
             ],
-        }).exec();
+        })
+            .limit(limit)
+            .skip(skip)
+            .exec();
     }
-    async searchStudents(query) {
-        return this.studentModel.find({
+    async searchStudents(query, limit = 10, skip = 0) {
+        return this.studentModel
+            .find({
             $or: [
                 { name: { $regex: query, $options: 'i' } },
                 { email: { $regex: query, $options: 'i' } },
                 { id: { $regex: query, $options: 'i' } },
             ],
-        }).exec();
+        })
+            .limit(limit)
+            .skip(skip)
+            .exec();
     }
-    async searchInstructors(query) {
-        return this.instructorModel.find({
+    async searchInstructors(query, limit = 10, skip = 0) {
+        return this.instructorModel
+            .find({
             $or: [
                 { name: { $regex: query, $options: 'i' } },
                 { email: { $regex: query, $options: 'i' } },
                 { id: { $regex: query, $options: 'i' } },
             ],
-        }).exec();
+        })
+            .limit(limit)
+            .skip(skip)
+            .exec();
     }
 };
 exports.CourseService = CourseService;

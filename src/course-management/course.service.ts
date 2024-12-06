@@ -6,6 +6,7 @@ import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
 import { StudentDocument } from './student.schema';
 import { InstructorDocument } from './instructor.schema';
+import { AddMultimediaDto } from './dots/add-multimedia.dto';
 
 @Injectable()
 export class CourseService {
@@ -15,34 +16,20 @@ export class CourseService {
   @InjectModel('Instructor') private instructorModel: Model<InstructorDocument>, 
 ){}
 
-  /**
-   * Creates a new course in the database.
-   * @param {CreateCourseDto} createCourseDto - The data transfer object containing course details.
-   * @returns {Promise<Course>} - The newly created course.
-   * @throws {InternalServerErrorException} - If course creation fails.
-   */
+ 
   async createCourse(createCourseDto: CreateCourseDto): Promise<Course> {
     // Create a new course document using the provided data.
     const newCourse = await this.courseModel.create(createCourseDto);
     return newCourse; // Return the created course.
   }
 
-  /**
-   * Retrieves all courses from the database.
-   * @returns {Promise<Course[]>} - An array of all courses.
-   */
+ 
   async getAllCourses(): Promise<Course[]> {
     // Query the database to fetch all courses.
     return this.courseModel.find().exec();
   }
 
-  /**
-   * Updates a course and saves the current state as a new version.
-   * @param {string} courseId - The unique ID of the course to update.
-   * @param {UpdateCourseDto} updateCourseDto - The data transfer object containing the updated course details.
-   * @returns {Promise<Course>} - The updated course.
-   * @throws {NotFoundException} - If the course is not found.
-   */
+ 
   async updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     // Find the course in the database by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -66,61 +53,42 @@ export class CourseService {
     return course.save();
   }
 
-  /**
-   * Reverts a course to a previous version and saves the reverted state as a new version.
-   * @param {string} courseId - The unique ID of the course to revert.
-   * @param {string} version - The version identifier to revert to.
-   * @returns {Promise<Course>} - The course reverted to the specified version.
-   * @throws {NotFoundException} - If the course or version is not found.
-   * @throws {InternalServerErrorException} - If reverting fails.
-   */
+ 
   async revertToVersion(courseId: string, version: string): Promise<Course> {
     try {
-      // Find the course by its unique courseId.
+      // Find the course by its unique courseId
       const course = await this.courseModel.findOne({ courseId });
       if (!course) {
-        // If the course does not exist, throw an error.
         throw new NotFoundException(`Course with ID ${courseId} not found.`);
       }
-
-      // Find the specific version in the course's versions array.
+  
+      // Find the specific version in the course's versions array
       const versionData = course.versions.find((v) => v.version === version);
       if (!versionData) {
-        // If the version does not exist, throw an error.
         throw new NotFoundException(`Version ${version} not found for course ${courseId}.`);
       }
-
+  
       console.log('Reverting to version data:', versionData);
-
-      // Clone the content of the selected version and exclude the versions field.
+  
+      // Clone the content of the selected version and exclude the versions field
       const restoredContent = { ...versionData.content };
       delete restoredContent.versions;
-
-      // Overwrite the current course with the restored content.
+  
+      // Apply the restored content to the course without creating a new version
       Object.assign(course, restoredContent);
-
-      // Save the restored state as a new version.
-      course.versions.push({
-        version: `v${course.versions.length + 1}`, // Increment the version number.
-        content: { ...restoredContent }, // Save the restored state.
-        updatedAt: new Date(), // Timestamp for the new version.
-      });
-
-      // Save the updated course document to the database.
+  
+      // Save the updated course document to the database
       return course.save();
     } catch (error) {
-      // Log the error and throw a generic internal server error.
       console.error('Error in revertToVersion:', error.message);
       throw new InternalServerErrorException(`Failed to revert course version: ${error.message}`);
     }
   }
+  
+  
+  
 
-  /**
-   * Retrieves the list of versions for a specific course.
-   * @param {string} courseId - The unique ID of the course.
-   * @returns {Promise<Array<{ version: string; updatedAt: Date }>>} - An array of version metadata.
-   * @throws {NotFoundException} - If the course is not found.
-   */
+ 
   async getVersions(courseId: string): Promise<Array<{ version: string; updatedAt: Date }>> {
     // Find the course by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -133,71 +101,97 @@ export class CourseService {
     return course.versions.map(({ version, updatedAt }) => ({ version, updatedAt }));
   }
 
-  /**
-   * Adds a multimedia resource to a specific course.
-   * @param {string} courseId - The unique ID of the course.
-   * @param {string} multimediaUrl - The URL of the multimedia resource to add.
-   * @returns {Promise<Course>} - The updated course with the added multimedia.
-   * @throws {Error} - If the course is not found.
-   */
-  async addMultimedia(courseId: string, multimediaUrl: string): Promise<Course> {
-    // Find the course by its unique courseId.
+ 
+  
+  // Add a multimedia resource to a course
+  async addMultimedia(courseId: string, multimediaDto: AddMultimediaDto): Promise<Course> {
     const course = await this.courseModel.findOne({ courseId });
-    if (!course) {
-      // If the course does not exist, throw an error.
-      throw new Error('Course not found');
+    if (!course) throw new NotFoundException('Course not found');
+  
+    // Ensure multimedia field is initialized as an array
+    if (!Array.isArray(course.multimedia)) {
+      course.multimedia = [];
     }
+  
+    // Check if multimedia with the same URL already exists
+    const exists = course.multimedia.some((media) => media.url === multimediaDto.url);
+    if (exists) throw new Error('Multimedia resource with this URL already exists.');
+  
+    // Add the multimedia resource with a default uploadedAt value
+    const multimediaWithUploadedAt = {
+      ...multimediaDto,
+      uploadedAt: multimediaDto.uploadedAt || new Date(), // Assign a default date if not provided
+    };
+  
+    course.multimedia.push(multimediaWithUploadedAt);
+    return course.save();
+  }
+  
+  
+  
+  
 
-    // Add the multimedia URL to the course's multimedia array.
-    course.multimedia.push(multimediaUrl);
+  // Remove a multimedia resource from a course
+  async removeMultimedia(courseId: string, multimediaId: string): Promise<Course> {
+    const course = await this.courseModel.findOne({ courseId });
+    if (!course) throw new NotFoundException('Course not found');
 
-    // Save the updated course document to the database.
+    course.multimedia = course.multimedia.filter((media) => media._id.toString() !== multimediaId);
     return course.save();
   }
 
-   
-/**
-   * Search for courses by title, category, or instructor.
-   * @param {string} query - The search query string.
-   * @returns {Promise<Course[]>} - The list of matching courses.
-   */
-async searchCourses(query: string): Promise<Course[]> {
-  return this.courseModel.find({
-    $or: [
-      { title: { $regex: query, $options: 'i' } }, // Search by title
-      { category: { $regex: query, $options: 'i' } }, // Search by category
-      { createdBy: { $regex: query, $options: 'i' } }, // Search by instructor ID
-    ],
-  }).exec();
-}
+  // Get all multimedia resources for a course
+  async getMultimedia(courseId: string): Promise<Array<{ resourceType: string; url: string; title: string }>> {
+    const course = await this.courseModel.findOne({ courseId });
+    if (!course) throw new NotFoundException('Course not found');
 
-/**
-   * Search for students by name, email, or ID.
-   * @param {string} query - The search query string.
-   * @returns {Promise<any[]>} - The list of matching students.
-   */
-async searchStudents(query: string): Promise<any[]> {
-  return this.studentModel.find({
-    $or: [
-      { name: { $regex: query, $options: 'i' } }, // Search by name
-      { email: { $regex: query, $options: 'i' } }, // Search by email
-      { id: { $regex: query, $options: 'i' } }, // Search by student ID
-    ],
-  }).exec();
-}
-
-  /**
-   * Search for instructors by name, email, or ID.
-   * @param {string} query - The search query string.
-   * @returns {Promise<any[]>} - The list of matching instructors.
-   */
-  async searchInstructors(query: string): Promise<any[]> {
-    return this.instructorModel.find({
-      $or: [
-        { name: { $regex: query, $options: 'i' } }, // Search by name
-        { email: { $regex: query, $options: 'i' } }, // Search by email
-        { id: { $regex: query, $options: 'i' } }, // Search by instructor ID
-      ],
-    }).exec();
+    return course.multimedia;
   }
+
+   
+
+async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
+  return this.courseModel
+    .find({
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
+        { createdBy: { $regex: query, $options: 'i' } },
+      ],
+    })
+    .limit(limit)
+    .skip(skip)
+    .exec();
+}
+
+
+
+async searchStudents(query: string, limit = 10, skip = 0): Promise<any[]> {
+  return this.studentModel
+    .find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+        { id: { $regex: query, $options: 'i' } },
+      ],
+    })
+    .limit(limit)
+    .skip(skip)
+    .exec();
+}
+
+async searchInstructors(query: string, limit = 10, skip = 0): Promise<any[]> {
+  return this.instructorModel
+    .find({
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { email: { $regex: query, $options: 'i' } },
+        { id: { $regex: query, $options: 'i' } },
+      ],
+    })
+    .limit(limit)
+    .skip(skip)
+    .exec();
+}
+
 }

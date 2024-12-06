@@ -1,9 +1,16 @@
+declare class MultimediaDto {
+    resourceType: string;
+    url: string;
+    title: string;
+    description?: string;
+}
 export declare class CreateCourseDto {
     courseId: string;
     title: string;
     description: string;
     category: string;
-    difficultyLevel: string;
+    difficultyLevel: 'Beginner' | 'Intermediate' | 'Advanced';
     createdBy: string;
-    multimedia: string[];
+    multimedia?: MultimediaDto[];
 }
+export {};
