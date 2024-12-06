@@ -10,10 +10,11 @@ import{CourseModule} from"src/course-management/course.module"
 import{ModuleModule} from "src/course-management/module.module"
 import { StudentSchema } from './course-management/student.schema';
 import { InstructorSchema } from './course-management/instructor.schema';
+import { AuthModule } from './user-managment/auth.module';
 @Module({
   imports: [
   MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'), 
-  UserModule,ResponseModule,InteractionModule,RecommendationModule,PerformanceTrackingModule,ModuleModule,InteractiveModulesModule,CourseModule,
+  UserModule,ResponseModule,InteractionModule,RecommendationModule,PerformanceTrackingModule,ModuleModule,InteractiveModulesModule,CourseModule,AuthModule,
   MongooseModule.forFeature([
     { name: 'Student', schema: StudentSchema },
     { name: 'Instructor', schema: InstructorSchema },

@@ -1,1 +1,1 @@
-{"version":3,"file":"CreateUser.dto.js","sourceRoot":"","sources":["../../src/user-managment/CreateUser.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAgE;AAEhE,MAAa,aAAa;CAUvB;AAVH,sCAUG;AAPC;IAFA,IAAA,4BAAU,GAAE;IACZ,IAAA,0BAAQ,GAAE;;6CACK"}
+{"version":3,"file":"CreateUser.dto.js","sourceRoot":"","sources":["../../src/user-managment/CreateUser.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAgE;AAEhE,MAAa,aAAa;IACtB,QAAQ,CAAC,QAAa,EAAE,IAAY;QAChC,MAAM,IAAI,KAAK,CAAC,yBAAyB,CAAC,CAAC;IAC/C,CAAC;CAWF;AAdH,sCAcG;AARC;IAFA,IAAA,4BAAU,GAAE;IACZ,IAAA,0BAAQ,GAAE;;6CACK"}

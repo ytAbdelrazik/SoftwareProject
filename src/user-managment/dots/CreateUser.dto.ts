@@ -1,13 +1,27 @@
-import { IsAlpha, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateUserdto{
-   @IsNotEmpty()
-   @IsString()
-    userId: string;
-    name: string;
-    email:string;
-    passwordHash: string;
-    role: 'student' | 'instructor' | 'admin';
-    profilePictureUrl?: string; // Optional URL of the user’s profile picture
-    createdAt: Date; // Timestamp of account creation
-  }
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsEnum(['student', 'instructor', 'admin'])
+  @IsNotEmpty()
+  role: 'student' | 'instructor' | 'admin';
+
+  @IsOptional()
+  @IsString()
+  profilePictureUrl?: string;
+
+  @IsOptional() // Only required for admin/instructor
+  @IsString()
+  passphrase?: string;
+}

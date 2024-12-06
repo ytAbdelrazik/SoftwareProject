@@ -39,6 +39,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "profilePictureUrl", void 0);
 __decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Array)
+], User.prototype, "preferences", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", Array)
+], User.prototype, "subjectsOfInterest", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ default: Date.now }),
     __metadata("design:type", Date)
 ], User.prototype, "createdAt", void 0);

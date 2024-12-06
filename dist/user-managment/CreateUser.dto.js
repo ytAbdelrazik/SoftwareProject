@@ -12,6 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateUserdto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateUserdto {
+    password(password, arg1) {
+        throw new Error('Method not implemented.');
+    }
 }
 exports.CreateUserdto = CreateUserdto;
 __decorate([

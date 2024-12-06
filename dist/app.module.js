@@ -19,6 +19,7 @@ const course_module_1 = require("./course-management/course.module");
 const module_module_1 = require("./course-management/module.module");
 const student_schema_1 = require("./course-management/student.schema");
 const instructor_schema_1 = require("./course-management/instructor.schema");
+const auth_module_1 = require("./user-managment/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,7 +27,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'),
-            users_module_1.UserModule, responses_module_1.ResponseModule, user_interaction_module_1.InteractionModule, recommendation_module_1.RecommendationModule, performance_tracking_module_1.PerformanceTrackingModule, module_module_1.ModuleModule, quizzes_module_1.InteractiveModulesModule, course_module_1.CourseModule,
+            users_module_1.UserModule, responses_module_1.ResponseModule, user_interaction_module_1.InteractionModule, recommendation_module_1.RecommendationModule, performance_tracking_module_1.PerformanceTrackingModule, module_module_1.ModuleModule, quizzes_module_1.InteractiveModulesModule, course_module_1.CourseModule, auth_module_1.AuthModule,
             mongoose_1.MongooseModule.forFeature([
                 { name: 'Student', schema: student_schema_1.StudentSchema },
                 { name: 'Instructor', schema: instructor_schema_1.InstructorSchema },
