@@ -6,25 +6,37 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserModule = void 0;
+exports.UsersModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_service_1 = require("./user.service");
-const users_schema_1 = require("./users.schema");
 const user_controller_1 = require("./user.controller");
-let UserModule = class UserModule {
+const roles_guard_1 = require("./roles.guard");
+const jwt_1 = require("@nestjs/jwt");
+const student_schema_1 = require("../course-management/student.schema");
+const instructor_schema_1 = require("../course-management/instructor.schema");
+const users_schema_1 = require("./users.schema");
+const failed_login_schema_1 = require("./failed-login.schema");
+let UsersModule = class UsersModule {
 };
-exports.UserModule = UserModule;
-exports.UserModule = UserModule = __decorate([
+exports.UsersModule = UsersModule;
+exports.UsersModule = UsersModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([
-                { name: users_schema_1.User.name, schema: users_schema_1.UserSchema
-                },
+                { name: 'Student', schema: student_schema_1.StudentSchema },
+                { name: 'Instructor', schema: instructor_schema_1.InstructorSchema },
+                { name: 'Admin', schema: users_schema_1.UserSchema },
+                { name: 'FailedLogin', schema: failed_login_schema_1.FailedLoginSchema },
             ]),
+            jwt_1.JwtModule.register({
+                secret: 'ahmed',
+                signOptions: { expiresIn: '1h' },
+            }),
         ],
-        providers: [user_service_1.UserService],
         controllers: [user_controller_1.UserController],
+        providers: [user_service_1.UserService, roles_guard_1.RolesGuard],
+        exports: [user_service_1.UserService, jwt_1.JwtModule],
     })
-], UserModule);
+], UsersModule);
 //# sourceMappingURL=users.module.js.map

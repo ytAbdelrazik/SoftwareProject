@@ -1,21 +1,29 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserService } from 'src/user-managment/user.service';
-import { User, UserSchema } from 'src/user-managment/users.schema';
+import { UserService } from './user.service';
 import { UserController } from './user.controller';
+import { RolesGuard } from './roles.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { StudentSchema } from '../course-management/student.schema';
+import { InstructorSchema } from '../course-management/instructor.schema';
+import { UserSchema } from './users.schema';
+import { FailedLoginSchema } from './failed-login.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema 
-
-      },
-    ]), // Ensure this is correct
+      { name: 'Student', schema: StudentSchema },
+      { name: 'Instructor', schema: InstructorSchema },
+      { name: 'Admin', schema: UserSchema },
+      { name: 'FailedLogin', schema: FailedLoginSchema },
+    ]),
+    JwtModule.register({
+      secret: 'ahmed', // Replace with your secret key
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
-  providers: [UserService],
-  controllers: [UserController], 
+  controllers: [UserController],
+  providers: [UserService, RolesGuard], // Ensure RolesGuard is provided
+  exports: [UserService, JwtModule], // Export JwtModule for use in other modules
 })
-
-export class UserModule {}
-
-  
+export class UsersModule {}

@@ -1,9 +1,10 @@
 import { Document } from 'mongoose';
 export type InstructorDocument = Instructor & Document;
 export declare class Instructor {
-    id: string;
+    userId: string;
     name: string;
     email: string;
+    passwordHash: string;
     expertise: string[];
     coursesCreated: string[];
     createdAt: Date;

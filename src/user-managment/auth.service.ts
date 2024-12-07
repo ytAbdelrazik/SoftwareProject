@@ -2,20 +2,38 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user-managment/user.service';
-import { CreateUserdto } from './CreateUser.dto';
+import { CreateUserdto } from '../user-managment/dots/CreateUser.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { FailedLoginDocument } from './failed-login.schema';
 
 @Injectable()
 export class AuthService {
   private readonly adminPassphrase = 'admin'; // Passphrase for admin
   private readonly instructorPassphrase = 'inst'; // Passphrase for instructor
 
-  constructor(private userService: UserService, private jwtService: JwtService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+    @InjectModel('FailedLogin') private failedLoginModel: Model<FailedLoginDocument>,
+  ) {}
 
-  /**
-   * Generates a unique user ID based on role.
-   * @param role - The user's role (admin, student, instructor).
-   * @returns Generated user ID.
-   */
+
+  private async logFailedAttempt(
+    email: string,
+    reason: string,
+    ipAddress: string,
+    userAgent: string,
+  ): Promise<void> {
+    await this.failedLoginModel.create({
+      email,
+      reason,
+      ipAddress,
+      userAgent,
+    });
+  }
+
+  
   private generateUserId(role: string): string {
     const randomNumber = Math.floor(10000 + Math.random() * 90000); // Random 5-digit number
     switch (role) {
@@ -30,11 +48,8 @@ export class AuthService {
     }
   }
 
-  /**
-   * Sign up a new user.
-   * @param userDto - The user data transfer object.
-   * @returns Newly created user.
-   */
+
+
   async signUp(userDto: CreateUserdto): Promise<any> {
     // Check for role-specific passphrase
     if (userDto.role === 'admin' && userDto.passphrase !== this.adminPassphrase) {
@@ -57,35 +72,31 @@ export class AuthService {
       email: userDto.email,
       passwordHash: hashedPassword,
       role: userDto.role,
-      profilePictureUrl: userDto.profilePictureUrl || null,
+     
     };
 
     return this.userService.createUser(newUser); // Save the user in the database
   }
 
-  /**
-   * Validate a user during login.
-   * @param email - User's email.
-   * @param password - User's password.
-   * @returns User data without passwordHash if valid.
-   */
-  async validateUser(email: string, password: string): Promise<any> {
+
+  async validateUser(email: string, password: string, ipAddress?: string, userAgent?: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.passwordHash))) {
-      const { passwordHash, ...result } = user.toObject();
-      return result; // Exclude passwordHash in the response
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      if (ipAddress && userAgent) {
+        // Log the failed login attempt if IP and user agent are provided
+        await this.logFailedAttempt(email, 'Invalid credentials', ipAddress, userAgent);
+      }
+      return null;
     }
-    return null;
+
+    const { passwordHash, ...result } = user.toObject();
+    return result; // Exclude passwordHash in the response
   }
 
-  /**
-   * Log in a user and generate a JWT.
-   * @param email - User's email.
-   * @param password - User's password.
-   * @returns JWT access token.
-   */
-  async login(email: string, password: string): Promise<any> {
-    const user = await this.validateUser(email, password);
+
+  
+  async login(email: string, password: string, ipAddress: string, userAgent: string): Promise<any> {
+    const user = await this.validateUser(email, password, ipAddress, userAgent);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }

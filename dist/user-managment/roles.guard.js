@@ -12,23 +12,38 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RolesGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
+const jwt_1 = require("@nestjs/jwt");
+const roles_decorator_1 = require("./roles.decorator");
 let RolesGuard = class RolesGuard {
-    constructor(reflector) {
+    constructor(reflector, jwtService) {
         this.reflector = reflector;
+        this.jwtService = jwtService;
     }
-    canActivate(context) {
-        const roles = this.reflector.get('roles', context.getHandler());
-        if (!roles) {
+    async canActivate(context) {
+        const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+        if (!requiredRoles) {
             return true;
         }
         const request = context.switchToHttp().getRequest();
-        const user = request.user;
-        return roles.includes(user.role);
+        const token = request.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return false;
+        }
+        try {
+            const user = this.jwtService.verify(token);
+            return requiredRoles.includes(user.role);
+        }
+        catch {
+            return false;
+        }
     }
 };
 exports.RolesGuard = RolesGuard;
 exports.RolesGuard = RolesGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [core_1.Reflector])
+    __metadata("design:paramtypes", [core_1.Reflector, jwt_1.JwtService])
 ], RolesGuard);
 //# sourceMappingURL=roles.guard.js.map

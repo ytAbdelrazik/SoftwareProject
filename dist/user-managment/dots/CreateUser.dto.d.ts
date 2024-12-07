@@ -1,8 +1,7 @@
-export declare class CreateUserDto {
+export declare class CreateUserdto {
     name: string;
     email: string;
     password: string;
     role: 'student' | 'instructor' | 'admin';
-    profilePictureUrl?: string;
     passphrase?: string;
 }

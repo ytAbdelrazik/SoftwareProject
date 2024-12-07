@@ -17,9 +17,12 @@ const performance_tracking_module_1 = require("./performance-tracking/performanc
 const quizzes_module_1 = require("./interactive-modules/quizzes.module");
 const course_module_1 = require("./course-management/course.module");
 const module_module_1 = require("./course-management/module.module");
-const student_schema_1 = require("./course-management/student.schema");
-const instructor_schema_1 = require("./course-management/instructor.schema");
 const auth_module_1 = require("./user-managment/auth.module");
+const failed_login_schema_1 = require("./user-managment/failed-login.schema");
+const users_schema_1 = require("./user-managment/users.schema");
+const jwt_1 = require("@nestjs/jwt");
+const roles_guard_1 = require("./user-managment/roles.guard");
+const core_1 = require("@nestjs/core");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -27,14 +30,29 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'),
-            users_module_1.UserModule, responses_module_1.ResponseModule, user_interaction_module_1.InteractionModule, recommendation_module_1.RecommendationModule, performance_tracking_module_1.PerformanceTrackingModule, module_module_1.ModuleModule, quizzes_module_1.InteractiveModulesModule, course_module_1.CourseModule, auth_module_1.AuthModule,
+            users_module_1.UsersModule,
+            responses_module_1.ResponseModule,
+            user_interaction_module_1.InteractionModule,
+            recommendation_module_1.RecommendationModule,
+            performance_tracking_module_1.PerformanceTrackingModule,
+            module_module_1.ModuleModule,
+            quizzes_module_1.InteractiveModulesModule,
+            course_module_1.CourseModule,
+            auth_module_1.AuthModule,
             mongoose_1.MongooseModule.forFeature([
-                { name: 'Student', schema: student_schema_1.StudentSchema },
-                { name: 'Instructor', schema: instructor_schema_1.InstructorSchema },
+                { name: 'FailedLogin', schema: failed_login_schema_1.FailedLoginSchema },
+                { name: users_schema_1.User.name, schema: users_schema_1.UserSchema },
             ]),
+            jwt_1.JwtModule.register({
+                secret: 'ahmed',
+                signOptions: { expiresIn: '1h' },
+            }),
         ],
         controllers: [],
-        providers: [],
+        providers: [
+            roles_guard_1.RolesGuard,
+            core_1.Reflector,
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

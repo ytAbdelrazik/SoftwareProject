@@ -9,8 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CourseModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
-const course_controller_1 = require("./course.controller");
 const course_service_1 = require("./course.service");
+const course_controller_1 = require("./course.controller");
 const course_schema_1 = require("./course.schema");
 const student_schema_1 = require("./student.schema");
 const instructor_schema_1 = require("./instructor.schema");
@@ -22,12 +22,13 @@ exports.CourseModule = CourseModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([
                 { name: 'Course', schema: course_schema_1.CourseSchema },
-                { name: 'Student', schema: student_schema_1.StudentSchema },
-                { name: 'Instructor', schema: instructor_schema_1.InstructorSchema },
+                { name: 'Student', schema: student_schema_1.StudentSchema, collection: 'students' },
+                { name: 'Instructor', schema: instructor_schema_1.InstructorSchema, collection: 'instructors' },
             ]),
         ],
         controllers: [course_controller_1.CourseController],
         providers: [course_service_1.CourseService],
+        exports: [mongoose_1.MongooseModule],
     })
 ], CourseModule);
 //# sourceMappingURL=course.module.js.map

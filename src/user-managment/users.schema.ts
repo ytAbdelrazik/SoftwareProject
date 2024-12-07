@@ -1,10 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type UserDocument = User & Document;
-
 @Schema()
-export class User {
+export class User extends Document {
   @Prop({ unique: true, required: true })
   userId: string;
 
@@ -15,19 +13,13 @@ export class User {
   email: string;
 
   @Prop({ required: true })
-  passwordHash: string; // Store hashed passwords
+  passwordHash: string;
 
   @Prop({ required: true, enum: ['student', 'instructor', 'admin'] })
   role: 'student' | 'instructor' | 'admin';
 
   @Prop()
   profilePictureUrl?: string;
-
-  @Prop()
-  preferences?: string[]; // Learning preferences
-
-  @Prop()
-  subjectsOfInterest?: string[];
 
   @Prop({ default: Date.now })
   createdAt: Date;

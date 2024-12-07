@@ -6,15 +6,18 @@ export type StudentDocument = Student & Document;
 @Schema()
 export class Student {
   @Prop({ required: true, unique: true })
-  id: string; // Unique identifier for the student
+  userId: string; // Auto-generated unique identifier for the student (e.g., STXXXXX)
 
   @Prop({ required: true })
   name: string; // Full name of the student
 
+  @Prop({ required: true })
+  passwordHash: string;
+
   @Prop({ required: true, unique: true })
   email: string; // Email address of the student
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: [] })
   enrolledCourses: string[]; // List of course IDs the student is enrolled in
 
   @Prop({ default: Date.now })

@@ -6,7 +6,7 @@ export type InstructorDocument = Instructor & Document;
 @Schema()
 export class Instructor {
   @Prop({ required: true, unique: true })
-  id: string; // Unique identifier for the instructor
+  userId: string; // Auto-generated unique identifier for the instructor (e.g., ISXXXXX)
 
   @Prop({ required: true })
   name: string; // Full name of the instructor
@@ -15,9 +15,12 @@ export class Instructor {
   email: string; // Email address of the instructor
 
   @Prop({ required: true })
-  expertise: string[]; // List of expertise areas (e.g., "Computer Science", "Mathematics")
+  passwordHash: string;
 
   @Prop({ required: true })
+  expertise: string[]; // List of expertise areas (e.g., "Computer Science", "Mathematics")
+
+  @Prop({ required: true, default: [] })
   coursesCreated: string[]; // List of course IDs created by the instructor
 
   @Prop({ default: Date.now })

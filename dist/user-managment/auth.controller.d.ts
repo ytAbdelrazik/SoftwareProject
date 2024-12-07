@@ -1,10 +1,8 @@
 import { AuthService } from './auth.service';
+import { CreateUserdto } from '../user-managment/dots/CreateUser.dto';
 export declare class AuthController {
-    private authService;
+    private readonly authService;
     constructor(authService: AuthService);
-    signUp(userDto: any): Promise<any>;
-    login({ email, password }: {
-        email: string;
-        password: string;
-    }): Promise<any>;
+    signUp(createUserDto: CreateUserdto): Promise<any>;
+    login(body: any, req: any): Promise<any>;
 }

@@ -9,39 +9,36 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateUserDto = void 0;
+exports.CreateUserdto = void 0;
 const class_validator_1 = require("class-validator");
-class CreateUserDto {
+class CreateUserdto {
 }
-exports.CreateUserDto = CreateUserDto;
+exports.CreateUserdto = CreateUserdto;
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Name is required' }),
+    (0, class_validator_1.IsString)({ message: 'Name must be a string' }),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "name", void 0);
+], CreateUserdto.prototype, "name", void 0);
 __decorate([
-    (0, class_validator_1.IsEmail)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Email is required' }),
+    (0, class_validator_1.IsEmail)({}, { message: 'Email must be a valid email address' }),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "email", void 0);
+], CreateUserdto.prototype, "email", void 0);
 __decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Password is required' }),
+    (0, class_validator_1.IsString)({ message: 'Password must be a string' }),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "password", void 0);
+], CreateUserdto.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(['student', 'instructor', 'admin']),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Role is required' }),
+    (0, class_validator_1.IsIn)(['student', 'instructor', 'admin'], {
+        message: 'Role must be one of the following values: student, instructor, admin',
+    }),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "role", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
-], CreateUserDto.prototype, "profilePictureUrl", void 0);
+], CreateUserdto.prototype, "role", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], CreateUserDto.prototype, "passphrase", void 0);
+], CreateUserdto.prototype, "passphrase", void 0);
 //# sourceMappingURL=CreateUser.dto.js.map

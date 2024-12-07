@@ -9,41 +9,33 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.InstructorSchema = exports.Instructor = void 0;
+exports.FailedLoginSchema = exports.FailedLogin = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
-let Instructor = class Instructor {
+let FailedLogin = class FailedLogin {
 };
-exports.Instructor = Instructor;
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, unique: true }),
-    __metadata("design:type", String)
-], Instructor.prototype, "userId", void 0);
+exports.FailedLogin = FailedLogin;
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
-], Instructor.prototype, "name", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, unique: true }),
-    __metadata("design:type", String)
-], Instructor.prototype, "email", void 0);
+], FailedLogin.prototype, "email", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
-], Instructor.prototype, "passwordHash", void 0);
+], FailedLogin.prototype, "reason", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", Array)
-], Instructor.prototype, "expertise", void 0);
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], FailedLogin.prototype, "ipAddress", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, default: [] }),
-    __metadata("design:type", Array)
-], Instructor.prototype, "coursesCreated", void 0);
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], FailedLogin.prototype, "userAgent", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: Date.now }),
     __metadata("design:type", Date)
-], Instructor.prototype, "createdAt", void 0);
-exports.Instructor = Instructor = __decorate([
+], FailedLogin.prototype, "timestamp", void 0);
+exports.FailedLogin = FailedLogin = __decorate([
     (0, mongoose_1.Schema)()
-], Instructor);
-exports.InstructorSchema = mongoose_1.SchemaFactory.createForClass(Instructor);
-//# sourceMappingURL=instructor.schema.js.map
+], FailedLogin);
+exports.FailedLoginSchema = mongoose_1.SchemaFactory.createForClass(FailedLogin);
+//# sourceMappingURL=failed-login.schema.js.map
