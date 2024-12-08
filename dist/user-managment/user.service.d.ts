@@ -9,8 +9,13 @@ export declare class UserService {
     constructor(studentModel: Model<Student>, instructorModel: Model<Instructor>, adminModel: Model<User>);
     private getModelByRole;
     private generateUserId;
-    createUser(userData: any): Promise<User>;
+    createUser(userData: any): Promise<any>;
+    updateUser(userId: string, role: string, updateData: any): Promise<any>;
+    getAllByRole(role: string): Promise<any[]>;
+    getEnrolledCourses(userId: string): Promise<any[]>;
+    getCreatedCourses(userId: string): Promise<any[]>;
     findByEmail(email: string): Promise<any | null>;
-    findById(userId: string, role: string): Promise<User | null>;
-    getAllByRole(role: string): Promise<User[]>;
+    findById(userId: string, role: string): Promise<any | null>;
+    addCoursesToStudent(userId: string, courseIds: string[]): Promise<any>;
+    addCoursesToInstructor(userId: string, courseIds: string[]): Promise<any>;
 }

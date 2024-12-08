@@ -30,17 +30,33 @@ let UserController = class UserController {
             return await this.userService.createUser(createUserDto);
         }
         catch (error) {
+            console.error('Error in createUser:', error.message);
             throw error;
         }
     }
-    async getFailedLogins() {
-        return this.failedLoginModel.find().sort({ timestamp: -1 }).exec();
+    async updateUser(userId, role, updateData) {
+        return this.userService.updateUser(userId, role, updateData);
     }
     async getAllStudents() {
         return this.userService.getAllByRole('student');
     }
     async getAllInstructors() {
         return this.userService.getAllByRole('instructor');
+    }
+    async getEnrolledCourses(userId) {
+        return this.userService.getEnrolledCourses(userId);
+    }
+    async getCreatedCourses(userId) {
+        return this.userService.getCreatedCourses(userId);
+    }
+    async addCoursesToStudent(userId, courseIds) {
+        return this.userService.addCoursesToStudent(userId, courseIds);
+    }
+    async addCoursesToInstructor(userId, courseIds) {
+        return this.userService.addCoursesToInstructor(userId, courseIds);
+    }
+    async getFailedLogins() {
+        return this.failedLoginModel.find().sort({ timestamp: -1 }).exec();
     }
 };
 exports.UserController = UserController;
@@ -52,13 +68,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "createUser", null);
 __decorate([
-    (0, common_1.Get)('failed-logins'),
-    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, common_1.Patch)(':userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Query)('role')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
-], UserController.prototype, "getFailedLogins", null);
+], UserController.prototype, "updateUser", null);
 __decorate([
     (0, common_1.Get)('students'),
     (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
@@ -75,6 +92,44 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "getAllInstructors", null);
+__decorate([
+    (0, common_1.Get)(':userId/enrolled-courses'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getEnrolledCourses", null);
+__decorate([
+    (0, common_1.Get)(':userId/created-courses'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getCreatedCourses", null);
+__decorate([
+    (0, common_1.Patch)(':userId/add-courses/student'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)('courseIds')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "addCoursesToStudent", null);
+__decorate([
+    (0, common_1.Patch)(':userId/add-courses/instructor'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)('courseIds')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "addCoursesToInstructor", null);
+__decorate([
+    (0, common_1.Get)('failed-logins'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('admin'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getFailedLogins", null);
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('users'),
     __param(1, (0, mongoose_1.InjectModel)('FailedLogin')),

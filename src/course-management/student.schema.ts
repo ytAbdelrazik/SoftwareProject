@@ -6,22 +6,22 @@ export type StudentDocument = Student & Document;
 @Schema()
 export class Student {
   @Prop({ required: true, unique: true })
-  userId: string; // Auto-generated unique identifier for the student (e.g., STXXXXX)
+  userId: string;
 
   @Prop({ required: true })
-  name: string; // Full name of the student
+  name: string;
 
   @Prop({ required: true })
   passwordHash: string;
 
   @Prop({ required: true, unique: true })
-  email: string; // Email address of the student
+  email: string;
 
   @Prop({ required: true, default: [] })
-  enrolledCourses: string[]; // List of course IDs the student is enrolled in
+  enrolledCourses: string[];
 
   @Prop({ default: Date.now })
-  createdAt: Date; // Timestamp when the student was created
+  createdAt: Date;
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

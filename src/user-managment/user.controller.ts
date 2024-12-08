@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Get, UseGuards } from '@nestjs/common';
+import { 
+  Body, 
+  Controller, 
+  Post, 
+  Get, 
+  UseGuards, 
+  Patch, 
+  Param, 
+  Query,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserService } from './user.service';
@@ -14,53 +23,71 @@ export class UserController {
     @InjectModel('FailedLogin') private readonly failedLoginModel: Model<FailedLoginDocument>,
   ) {}
 
-  /**
-   * Endpoint to create a new user.
-   * @param createUserDto - The data transfer object for creating a user.
-   * @returns The created user document.
-   */
   @Post()
   async createUser(@Body() createUserDto: CreateUserdto): Promise<any> {
     try {
       return await this.userService.createUser(createUserDto);
     } catch (error) {
-      throw error; // Handle exceptions like duplicate user or invalid role.
+      console.error('Error in createUser:', error.message);
+      throw error;
     }
   }
 
-  /**
-   * Endpoint to get all failed login attempts.
-   * Restricted to admins only.
-   * @returns A list of failed login attempts.
-   */
-  @Get('failed-logins')
-  @UseGuards(RolesGuard)
-  @Roles('admin') // Only accessible by admins.
-  async getFailedLogins(): Promise<any> {
-    return this.failedLoginModel.find().sort({ timestamp: -1 }).exec();
+  @Patch(':userId')
+  async updateUser(
+    @Param('userId') userId: string,
+    @Query('role') role: string,
+    @Body() updateData: any,
+  ) {
+    return this.userService.updateUser(userId, role, updateData);
   }
 
-  /**
-   * Endpoint to get all students.
-   * Restricted to admins only.
-   * @returns A list of all students.
-   */
   @Get('students')
   @UseGuards(RolesGuard)
-  @Roles('admin') // Only accessible by admins.
-  async getAllStudents(): Promise<any> {
+  @Roles('admin')
+  async getAllStudents() {
     return this.userService.getAllByRole('student');
   }
 
-  /**
-   * Endpoint to get all instructors.
-   * Restricted to admins only.
-   * @returns A list of all instructors.
-   */
   @Get('instructors')
   @UseGuards(RolesGuard)
-  @Roles('admin') // Only accessible by admins.
-  async getAllInstructors(): Promise<any> {
+  @Roles('admin')
+  async getAllInstructors() {
     return this.userService.getAllByRole('instructor');
   }
+
+  @Get(':userId/enrolled-courses')
+  async getEnrolledCourses(@Param('userId') userId: string) {
+    return this.userService.getEnrolledCourses(userId);
+  }
+
+  @Get(':userId/created-courses')
+  async getCreatedCourses(@Param('userId') userId: string) {
+    return this.userService.getCreatedCourses(userId);
+  }
+
+  @Patch(':userId/add-courses/student')
+async addCoursesToStudent(
+    @Param('userId') userId: string,
+    @Body('courseIds') courseIds: string[],
+) {
+    return this.userService.addCoursesToStudent(userId, courseIds);
+}
+
+
+@Patch(':userId/add-courses/instructor')
+async addCoursesToInstructor(
+    @Param('userId') userId: string,
+    @Body('courseIds') courseIds: string[],
+) {
+    return this.userService.addCoursesToInstructor(userId, courseIds);
+}
+
+@Get('failed-logins') // Define the specific route
+    @UseGuards(RolesGuard) // Restrict access based on roles
+    @Roles('admin') // Only accessible by admins
+    async getFailedLogins(): Promise<any> {
+        return this.failedLoginModel.find().sort({ timestamp: -1 }).exec();
+    }
+
 }

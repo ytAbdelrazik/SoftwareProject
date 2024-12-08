@@ -53,13 +53,63 @@ let UserService = class UserService {
         if (existingUser) {
             throw new common_1.ConflictException('User with this email already exists');
         }
-        userData.userId = this.generateUserId(userData.role);
+        let uniqueUserId = '';
+        let isUnique = false;
+        while (!isUnique) {
+            uniqueUserId = this.generateUserId(userData.role);
+            const userIdCheck = await model.findOne({ userId: uniqueUserId }).exec();
+            isUnique = !userIdCheck;
+        }
+        userData.userId = uniqueUserId;
         try {
             return await model.create(userData);
         }
         catch (error) {
+            console.error('Error creating user:', error);
+            if (error.code === 11000) {
+                throw new common_1.ConflictException('Duplicate key error: User already exists');
+            }
             throw new common_1.InternalServerErrorException('Failed to create user');
         }
+    }
+    async updateUser(userId, role, updateData) {
+        const model = this.getModelByRole(role);
+        const user = await model.findOne({ userId }).exec();
+        if (!user) {
+            throw new common_1.NotFoundException(`User with ID ${userId} not found`);
+        }
+        if ('userId' in updateData) {
+            delete updateData.userId;
+        }
+        if (updateData.email) {
+            const existingUser = await model.findOne({
+                email: updateData.email,
+                userId: { $ne: userId },
+            }).exec();
+            if (existingUser) {
+                throw new common_1.ConflictException('Email is already in use');
+            }
+        }
+        Object.assign(user, updateData);
+        return user.save();
+    }
+    async getAllByRole(role) {
+        const model = this.getModelByRole(role);
+        return model.find().exec();
+    }
+    async getEnrolledCourses(userId) {
+        const student = await this.studentModel.findOne({ userId }).exec();
+        if (!student) {
+            throw new common_1.NotFoundException(`Student with ID ${userId} not found`);
+        }
+        return student.enrolledCourses;
+    }
+    async getCreatedCourses(userId) {
+        const instructor = await this.instructorModel.findOne({ userId }).exec();
+        if (!instructor) {
+            throw new common_1.NotFoundException(`Instructor with ID ${userId} not found`);
+        }
+        return instructor.coursesCreated;
     }
     async findByEmail(email) {
         const student = await this.studentModel.findOne({ email }).exec();
@@ -79,9 +129,21 @@ let UserService = class UserService {
         }
         return user;
     }
-    async getAllByRole(role) {
-        const model = this.getModelByRole(role);
-        return model.find().exec();
+    async addCoursesToStudent(userId, courseIds) {
+        const student = await this.studentModel.findOne({ userId }).exec();
+        if (!student) {
+            throw new common_1.NotFoundException(`Student with ID ${userId} not found`);
+        }
+        student.enrolledCourses = Array.from(new Set([...student.enrolledCourses, ...courseIds]));
+        return student.save();
+    }
+    async addCoursesToInstructor(userId, courseIds) {
+        const instructor = await this.instructorModel.findOne({ userId }).exec();
+        if (!instructor) {
+            throw new common_1.NotFoundException(`Instructor with ID ${userId} not found`);
+        }
+        instructor.coursesCreated = Array.from(new Set([...instructor.coursesCreated, ...courseIds]));
+        return instructor.save();
     }
 };
 exports.UserService = UserService;

@@ -17,6 +17,7 @@ const student_schema_1 = require("../course-management/student.schema");
 const instructor_schema_1 = require("../course-management/instructor.schema");
 const users_schema_1 = require("./users.schema");
 const failed_login_schema_1 = require("./failed-login.schema");
+const core_1 = require("@nestjs/core");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -35,8 +36,15 @@ exports.UsersModule = UsersModule = __decorate([
             }),
         ],
         controllers: [user_controller_1.UserController],
-        providers: [user_service_1.UserService, roles_guard_1.RolesGuard],
-        exports: [user_service_1.UserService, jwt_1.JwtModule],
+        providers: [
+            user_service_1.UserService,
+            roles_guard_1.RolesGuard,
+            core_1.Reflector,
+        ],
+        exports: [
+            user_service_1.UserService,
+            jwt_1.JwtModule,
+        ],
     })
 ], UsersModule);
 //# sourceMappingURL=users.module.js.map
