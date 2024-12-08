@@ -1,4 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+
+export type UserDocument = User & Document;
 
 @Schema()
 export class User {
@@ -18,10 +21,10 @@ export class User {
   role: 'student' | 'instructor' | 'admin';
 
   @Prop()
-  profilePictureUrl?: string; // Optional URL of the user’s profile picture
+  profilePictureUrl?: string;
 
   @Prop({ default: Date.now })
-  createdAt: Date; // Timestamp of account creation
+  createdAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
