@@ -1,6 +1,18 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+  Res,
+  Query,
+} from '@nestjs/common';
 import { PerformanceTrackingService } from './performance-tracking.service';
 import { UpdateProgressDto } from './dtos/update-progress.dto';
+import { Response } from 'express';
 
 @Controller('performance-tracking')
 export class PerformanceTrackingController {
@@ -32,5 +44,19 @@ export class PerformanceTrackingController {
   @Delete('/:progressId')
   async deleteProgress(@Param('progressId') progressId: string) {
     return this.service.deleteProgress(progressId);
+  }
+
+  @Get('/analytics/course/:courseId')
+  async getCourseAnalytics(@Param('courseId') courseId: string) {
+    return this.service.getCourseAnalytics(courseId);
+  }
+
+  @Get('/export/:courseId')
+  async exportAnalytics(
+    @Param('courseId') courseId: string,
+    @Query('format') format: string,
+    @Res() res: Response,
+  ) {
+    return this.service.exportAnalytics(courseId, format, res);
   }
 }
