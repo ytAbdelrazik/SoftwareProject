@@ -3,6 +3,8 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Note extends Document {
+  @Prop({required:true,unique: true })
+  title:string;
   @Prop({ required: true })
   userId: string;
 

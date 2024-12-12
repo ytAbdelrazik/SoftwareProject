@@ -21,19 +21,23 @@ export class QuickNotesService {
   }
 
 //to update existinf notes
-  async update(id: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
-    const note = await this.noteModel.findByIdAndUpdate(id, updateNoteDto, {
-      new: true,
-    });
-    if (!note) {
-      throw new NotFoundException('Note not found');
-    }
-    return note;
+async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
+  const note = await this.noteModel.findOneAndUpdate(
+    { title },
+    { $set: updateNoteDto, $currentDate: { updatedAt: true } }, // update content and date it was chaanged/updates
+    { new: true }
+  );
+
+  if (!note) {
+    throw new NotFoundException('Note with the specified title not found');
   }
-  
+
+  return note;
+}
+
 //del note by id
-  async delete(id: string): Promise<void> {
-    const result = await this.noteModel.findByIdAndDelete(id);
+  async delete(title: string): Promise<void> {
+    const result = await this.noteModel.findOneAndDelete({title});
     if (!result) {
       throw new NotFoundException('Note not found');
     }

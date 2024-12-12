@@ -17,13 +17,13 @@ export class QuickNotesController {
     return this.quickNotesService.findByUser(userId);
   }
 
-@Patch(':id') //patch for updating not posting
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.quickNotesService.update(id, updateNoteDto);
+@Patch(':Title') //patch for updating not posting
+  update(@Param('Title') title: string, @Body() updateNoteDto: UpdateNoteDto) {
+    return this.quickNotesService.update(title, updateNoteDto);
   }
 
-@Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.quickNotesService.delete(id);
+@Delete(':Title')
+  delete(@Param('Title') title: string) {
+    return this.quickNotesService.delete(title);
   }
 }
