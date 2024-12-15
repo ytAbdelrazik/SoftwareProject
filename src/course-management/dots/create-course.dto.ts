@@ -4,6 +4,10 @@ import { Type } from 'class-transformer';
 class MultimediaDto {
   @IsString()
   @IsNotEmpty()
+  instructorId:string;
+  
+  @IsString()
+  @IsNotEmpty()
   resourceType: string;
 
   @IsString()
