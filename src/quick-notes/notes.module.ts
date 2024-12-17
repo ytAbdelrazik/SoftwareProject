@@ -16,3 +16,4 @@ import { NoteSchema } from './notes.schema';
     exports: [], // Export MongooseModule for reuse in other modules
   })
 export class QuickNotesModule {}
+
