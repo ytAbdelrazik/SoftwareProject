@@ -14,3 +14,4 @@ export class CreateNoteDto {
   @IsString()
   content: string;
 }
+

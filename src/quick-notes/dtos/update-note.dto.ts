@@ -5,3 +5,4 @@ export class UpdateNoteDto {
   @IsString()
   content?: string;
 }
+
