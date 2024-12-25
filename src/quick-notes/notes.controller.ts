@@ -31,7 +31,7 @@ export class QuickNotesController {
     return this.quickNotesService.update(title, updateNoteDto);
   }
   
-
+  
 @Delete(':Title')
   delete(@Param('Title') title: string) {
     return this.quickNotesService.delete(title);

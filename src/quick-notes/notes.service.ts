@@ -30,7 +30,6 @@ async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
   if (!note) {
     throw new NotFoundException('Note with the specified title not found');
   }
-
   return note;
 }
 
