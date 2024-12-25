@@ -15,9 +15,8 @@ export class QuickNotesService {
     return note.save(); //returns created note saved in the db 'note.save'
   }
 
-//get a certain user's notes
-  async findByUser(userId: string): Promise<Note[]> {
-    return this.noteModel.find({ userId }).exec();
+  async findByModule(moduleId: string): Promise<Note[]> {
+    return this.noteModel.find({ moduleId }).exec();
   }
 
 //to update existinf notes
@@ -42,4 +41,5 @@ async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
       throw new NotFoundException('Note not found');
     }
   }
+
 }

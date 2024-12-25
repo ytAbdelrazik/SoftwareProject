@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateNoteDto {
   @IsString()
@@ -7,11 +7,9 @@ export class CreateNoteDto {
   @IsString()
   userId: string;
 
-  @IsOptional()  // optional because not every note may be linked to a course
-  @IsString()
-  courseId?: string;
+  @IsString() // every note must now have a moduleId
+  moduleId: string;
 
   @IsString()
   content: string;
 }
-
