@@ -25,7 +25,7 @@ async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
     { title },
     { $set: updateNoteDto, $currentDate: { updatedAt: true } }, // update content and date it was chaanged/updates
     { new: true }
-  );
+  ); 
 
   if (!note) {
     throw new NotFoundException('Note with the specified title not found');

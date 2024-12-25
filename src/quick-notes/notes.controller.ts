@@ -27,7 +27,7 @@ export class QuickNotesController {
   async autosave(
     @Param('title') title: string,
     @Body() updateNoteDto: UpdateNoteDto
-  ) {
+  ) { 
     return this.quickNotesService.update(title, updateNoteDto);
   }
   
