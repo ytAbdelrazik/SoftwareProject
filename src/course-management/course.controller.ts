@@ -1,17 +1,57 @@
-import { Controller, Post, Get, Delete, Body, Param, Query } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Query, Patch } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
 import { AddMultimediaDto } from './dots/add-multimedia.dto';
-
+import { UserService } from 'src/user-managment/user.service';
+import { NotFoundException } from '@nestjs/common';
 @Controller('courses')
 export class CourseController {
-  constructor(private readonly courseService: CourseService) {}
+  constructor(private readonly courseService: CourseService,
+  private readonly UserService : UserService
 
+  ) {}
   @Post()
-  async createCourse(@Body() createCourseDto: CreateCourseDto) {
-    return this.courseService.createCourse(createCourseDto);
+  async createCourse(
+    @Body('insID') insID: string, // Extract instructor ID from the body
+    @Body() createCourseDto: CreateCourseDto, // Extract the rest of the body as CreateCourseDto
+  ) {
+    if (!insID) {
+      throw new NotFoundException('Instructor ID is required');
+    }
+  
+    // Check if the instructor ID is valid
+    const isadmin = await  this.UserService.getUserById(insID);
+ 
+    if (!(isadmin.role==='instructor')) {
+      throw new NotFoundException('Invalid instructor ID'); // Throw error if the ID is invalid
+    }
+    const isCourseExist =await this.courseService.courseExists(createCourseDto.courseId);
+    if (isCourseExist) {
+      throw new NotFoundException('Course ID already exists'); // Prevent creating duplicate course IDs
+    }
+
+
+    const course=this.courseService.createCourse(createCourseDto, insID); 
+    await this.updateInstructorCourses((await course).courseId,insID);
+    return;
   }
+  
+
+
+  @Get(':courseId')
+  async getCourseById(@Param('courseId') courseId: string) {
+    try {
+      const course = await this.courseService.getCourseById(courseId); // Call the service method
+
+      // Return the course if found
+      return course;
+    } catch (error) {
+     throw(error)
+    }
+  }
+  
+
   
 
   @Get()
@@ -66,6 +106,19 @@ export class CourseController {
   ) {
     return this.courseService.searchStudents(query, limit, offset);
   }
+
+  @Patch(':courseId/instructor/:instructorId')
+  async updateInstructorCourses(
+    @Param('courseId') courseId: string,
+    @Param('instructorId') instructorId: string,
+  ): Promise<void> {
+    try {
+      
+      await this.courseService.updateINS(courseId, instructorId);
+    } catch (error) {
+      throw new Error(`Error updating instructor's courses: ${error.message}`);
+    }
+  }
   
   @Get('instructors/search')
   async searchInstructors(
@@ -75,5 +128,8 @@ export class CourseController {
   ) {
     return this.courseService.searchInstructors(query, limit, offset);
   }
+  
+
+  
   
 }

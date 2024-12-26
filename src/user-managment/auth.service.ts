@@ -80,7 +80,8 @@ export class AuthService {
 
 
   async validateUser(email: string, password: string, ipAddress?: string, userAgent?: string): Promise<any> {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email); 
+    
     if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
       if (ipAddress && userAgent) {
         // Log the failed login attempt if IP and user agent are provided
@@ -88,10 +89,13 @@ export class AuthService {
       }
       return null;
     }
-
-    const { passwordHash, ...result } = user.toObject();
-    return result; // Exclude passwordHash in the response
+  
+    // Exclude the passwordHash field from the result
+    const { passwordHash, ...result } = user;
+    
+    return result; // Return the user object without the passwordHash field
   }
+  
 
 
   

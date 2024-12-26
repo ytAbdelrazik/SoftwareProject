@@ -1,10 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { User } from 'src/user-managment/users.schema';
+import { Course } from './course.schema';
 
 export type InstructorDocument = Instructor & Document;
 
 @Schema()
-export class Instructor {
+export class Instructor extends User{
   @Prop({ required: true, unique: true })
   userId: string;
 
@@ -21,7 +23,7 @@ export class Instructor {
   expertise: string[];
 
   @Prop({ required: true, default: [] })
-  coursesCreated: string[];
+  createdCourses: Course[];
 
   @Prop({ default: Date.now })
   createdAt: Date;

@@ -14,11 +14,15 @@ import { User, UserSchema } from './user-managment/users.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from './user-managment/roles.guard';
 import { Reflector } from '@nestjs/core';
+import { ChatModule } from './chat/chat.module';
+import { CourseSchema } from './course-management/course.schema'
 
+import { QuickNotesModule } from './quick-notes/notes.module';
+import { ChatService } from './chat/chat.service';
 @Module({
   imports: [
     // Database connection
-    MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'), 
+    MongooseModule.forRoot('mongodb+srv://ahmed:ahmed2006@cluster0.l8ikh.mongodb.net'),
 
     // Feature modules
     UsersModule,
@@ -30,11 +34,14 @@ import { Reflector } from '@nestjs/core';
     InteractiveModulesModule,
     CourseModule,
     AuthModule,
+    ChatModule,
+    QuickNotesModule, // Ensure this is correctly imported
 
     // Schemas
     MongooseModule.forFeature([
       { name: 'FailedLogin', schema: FailedLoginSchema },
       { name: User.name, schema: UserSchema },
+     
     ]),
 
     // JWT Module
@@ -43,10 +50,13 @@ import { Reflector } from '@nestjs/core';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  controllers: [], // Controllers in the App Module
+  controllers: [],
   providers: [
-    RolesGuard, // Role-based access control guard
-    Reflector,  // Used for metadata reflection
+    RolesGuard,
+    Reflector,
+    
+   
+    
   ],
 })
 export class AppModule {}
