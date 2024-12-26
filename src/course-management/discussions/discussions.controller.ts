@@ -1,7 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Request } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Request } from '@nestjs/common';
 import { DiscussionsService } from './discussions.service';
-import { CreateDiscussionDto } from '../dtos/create-discussion.dto';
-import { UpdateDiscussionDto } from '../dtos/update-discussion.dto';
 
 @Controller('courses/:id/forums')
 export class DiscussionsController {
@@ -15,23 +13,12 @@ export class DiscussionsController {
   @Post()
   async createDiscussion(
     @Param('id') courseId: string,
-    @Body() createDiscussionDto: CreateDiscussionDto,
+    @Body('content') content: string,
     @Request() req: any,
   ) {
     const userId = req.user.userId;
     const role = req.user.role;
-    return this.discussionsService.createDiscussion(courseId, userId, role, createDiscussionDto);
-  }
-
-  @Put(':forumId')
-  async updateDiscussion(
-    @Param('forumId') forumId: string,
-    @Body() updateDiscussionDto: UpdateDiscussionDto,
-    @Request() req: any,
-  ) {
-    const userId = req.user.userId;
-    const role = req.user.role;
-    return this.discussionsService.updateDiscussion(forumId, userId, role, updateDiscussionDto);
+    return this.discussionsService.createDiscussion(courseId, userId, role, content);
   }
 
   @Delete(':forumId')
