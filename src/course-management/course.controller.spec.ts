@@ -13,6 +13,7 @@ describe('CourseController', () => {
           provide: CourseService,
           useValue: {
             createCourse: jest.fn(),
+            updateCourse: jest.fn(),
           },
         },
       ],
