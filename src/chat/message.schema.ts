@@ -1,24 +1,27 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
-export type MessageDocument = Message & Document;
+import { Document, Types } from 'mongoose';
 
-@Schema()
-export class Message {
-  @Prop({ required: true })
-  courseId: string; // The course where the message was sent
+@Schema({ timestamps: true })
+export class Message extends Document {
+  @Prop({ type: String, required: true })
+  chatId: String;
 
-  @Prop({ required: true })
-  senderId: string; // ID of the sender (student or instructor)
+  @Prop({ type: String , ref: 'User', required: true })
+  senderId: String;
 
-  @Prop({ required: true })
-  content: string; // The actual message content
+  @Prop({ type: String, required: true })
+  content: string;
 
-  @Prop({ default: Date.now })
-  timestamp: Date; // Timestamp when the message was sent
+  @Prop({ type: String, enum: ['student', 'instructor'], required: true })
+  role: 'student' | 'instructor';
 
-  @Prop({ required: true })
-  role: 'student' | 'instructor'; // Role of the sender (student or instructor)
+  @Prop({ type: Date, default: Date.now })
+  timestamp: Date;
+
+  @Prop({ type: Boolean, default: false })
+  isDeleted: boolean;
+
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

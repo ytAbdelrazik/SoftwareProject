@@ -11,6 +11,7 @@ import { Quiz, QuizSchema } from 'src/interactive-modules/quizzes.schema';
 import { Course, CourseSchema } from 'src/course-management/course.schema';
 
 @Module({
+
   imports: [
     MongooseModule.forFeature([
       { name: Progress.name, schema: ProgressSchema },
@@ -27,3 +28,4 @@ import { Course, CourseSchema } from 'src/course-management/course.schema';
   providers: [PerformanceTrackingService],
 })
 export class PerformanceTrackingModule {}
+
