@@ -9,14 +9,54 @@ import { Model } from 'mongoose';
 import { Student } from '../course-management/student.schema';
 import { Instructor } from '../course-management/instructor.schema';
 import { User } from './users.schema';
-
+import { Course } from '../course-management/course.schema';  // Ensure Course schema is imported
+import { Admin } from './admin.schema';  // Adjust the import path for the Admin schema if necessary
+import { CourseService } from 'src/course-management/course.service';
 @Injectable()
 export class UserService {
+  getAllEnrolledCourses(userId: any) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
+    @InjectModel("User") private userModel: Model<User>,
     @InjectModel('Student') private readonly studentModel: Model<Student>,
     @InjectModel('Instructor') private readonly instructorModel: Model<Instructor>,
-    @InjectModel('Admin') private readonly adminModel: Model<User>, // Correctly references 'Admin' model
+    @InjectModel('Admin') private readonly adminModel: Model<Admin>,
+    @InjectModel('Course') private readonly courseModel: Model<Course>,
+    private readonly CourseService: CourseService
+
+
+
   ) {}
+
+  async getUserById(userId: string): Promise<Student | Instructor | Admin> {
+    console.log(`Fetching user with ID: ${userId}`);
+
+    // Check if the user exists in the student model
+    let user = await this.studentModel.findOne({ userId }).exec();
+    if (user) {
+        // Ensure the returned user is typed as Student
+        return user as Student; // Return the student if found
+    }
+
+    // Check if the user exists in the instructor model
+    let x = await this.instructorModel.findOne({ userId }).exec();
+    if (x) {
+        // Ensure the returned user is typed as Instructor
+        return x as Instructor; // Return the instructor if found
+    }
+
+    // Check if the user exists in the admin model
+    let y = await this.adminModel.findOne({ userId }).exec();
+    if (y) {
+        // Ensure the returned user is typed as Admin
+        return y as Admin; // Return the admin if found
+    }
+
+    // If the user was not found in any model, throw a NotFoundException
+    throw new NotFoundException(`User with ID ${userId} not found`);
+}
+
 
   private getModelByRole(role: string): Model<any> {
     switch (role) {
@@ -25,7 +65,7 @@ export class UserService {
       case 'instructor':
         return this.instructorModel;
       case 'admin':
-        return this.adminModel;
+        return this.adminModel;  // Handle Admin role
       default:
         throw new NotFoundException(`Invalid role: ${role}`);
     }
@@ -39,7 +79,7 @@ export class UserService {
       case 'instructor':
         return `IS${randomNumber}`;
       case 'admin':
-        return `AD${randomNumber}`;
+        return `AD${randomNumber}`;  // Ensure unique ID for admin
       default:
         throw new Error('Invalid role');
     }
@@ -81,116 +121,111 @@ export class UserService {
     const user = await model.findOne({ userId }).exec();
 
     if (!user) {
-        throw new NotFoundException(`User with ID ${userId} not found`);
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
     // Exclude userId from being updated
     if ('userId' in updateData) {
-        delete updateData.userId;
+      delete updateData.userId;
     }
 
     if (updateData.email) {
-        // Check for duplicate email
-        const existingUser = await model.findOne({
-            email: updateData.email,
-            userId: { $ne: userId }, // Exclude the current user from duplicate check
-        }).exec();
+      // Check for duplicate email
+      const existingUser = await model.findOne({
+        email: updateData.email,
+        userId: { $ne: userId }, // Exclude the current user from duplicate check
+      }).exec();
 
-        if (existingUser) {
-            throw new ConflictException('Email is already in use');
-        }
+      if (existingUser) {
+        throw new ConflictException('Email is already in use');
+      }
     }
 
     // Update allowed fields
     Object.assign(user, updateData);
     return user.save();
-}
-
-
+  }
 
   async getAllByRole(role: string): Promise<any[]> {
     const model = this.getModelByRole(role);
     return model.find().exec();
   }
 
-  async getEnrolledCourses(userId: string): Promise<any[]> {
+  async getEnrolledCourses(userId: string): Promise<Course[]> {
     const student = await this.studentModel.findOne({ userId }).exec();
     if (!student) {
       throw new NotFoundException(`Student with ID ${userId} not found`);
     }
+    // Return full Course objects, assuming enrolledCourses are references
     return student.enrolledCourses;
   }
 
-  async getCreatedCourses(userId: string): Promise<any[]> {
+  async getCreatedCourses(userId: string): Promise<Course[]> {
     const instructor = await this.instructorModel.findOne({ userId }).exec();
     if (!instructor) {
       throw new NotFoundException(`Instructor with ID ${userId} not found`);
     }
-    return instructor.coursesCreated;
+    // Return full Course objects, assuming coursesCreated are references
+    return instructor.createdCourses;
   }
 
+
+
+  
+  async findByEmail(email: string): Promise<any | null> {
+    const student = await this.studentModel.findOne({ email }).exec();
+    if (student) return student;
+  
+    const instructor = await this.instructorModel.findOne({ email }).exec();
+    if (instructor) return instructor;
+  
+    const admin = await this.adminModel.findOne({ email }).exec();
+    return admin;
+  }
   
 
 
 
 
-  /**
-   * Find a user by email.
-   * @param email - The email to search for.
-   * @returns The user document, if found.
-   */
-  async findByEmail(email: string): Promise<any | null> {
-    const student = await this.studentModel.findOne({ email }).exec();
-    if (student) return student;
 
-    const instructor = await this.instructorModel.findOne({ email }).exec();
-    if (instructor) return instructor;
 
-    const admin = await this.adminModel.findOne({ email }).exec();
-    return admin;
-  }
-
-  /**
-   * Find a user by their ID and role.
-   * @param userId - The ID of the user to find.
-   * @param role - The role of the user (e.g., student, instructor, admin).
-   * @returns The user document, if found.
-   */
-  async findById(userId: string, role: string): Promise<any | null> {
-    const model = this.getModelByRole(role);
-    const user = await model.findOne({ userId }).exec();
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+  async istheinstructorInCourse(courseId: string, instructorId: string): Promise<boolean> {
+    // Fetch the list of courses the instructor has created
+    const instructorCourses = await this.getCreatedCourses(instructorId);
+  
+    // Validate if the course exists
+    const course = await this.CourseService.getCourseById(courseId);
+    if (!course) {
+      throw new Error('Course not found');
     }
-    return user;
+  
+    // Check if the course ID exists in the instructor's created courses
+    return instructorCourses.some(createdCourse => createdCourse.courseId === course.courseId);
   }
+  
 
 
 
 
 
-  async addCoursesToStudent(userId: string, courseIds: string[]): Promise<any> {
-    const student = await this.studentModel.findOne({ userId }).exec();
+  async isStudentEnrolledInCourse(courseId: string, studentId: string): Promise<boolean> {
+    // Fetch the list of courses the student is enrolled in
+   
 
-    if (!student) {
-        throw new NotFoundException(`Student with ID ${userId} not found`);
+    const enrolledCoursess = await this.getEnrolledCourses(studentId);
+    const course = await this.CourseService.getCourseById(courseId);
+     
+    if (!course) {
+      throw new Error('Course not found');
     }
+    console.log(course.courseId)
+    return enrolledCoursess.some(enrolledCourse => enrolledCourse.courseId === course.courseId);
 
-    student.enrolledCourses = Array.from(new Set([...student.enrolledCourses, ...courseIds])); // Avoid duplicates
-    return student.save();
-}
-
-
-
-async addCoursesToInstructor(userId: string, courseIds: string[]): Promise<any> {
-  const instructor = await this.instructorModel.findOne({ userId }).exec();
-
-  if (!instructor) {
-      throw new NotFoundException(`Instructor with ID ${userId} not found`);
+  
   }
 
-  instructor.coursesCreated = Array.from(new Set([...instructor.coursesCreated, ...courseIds])); // Avoid duplicates
-  return instructor.save();
-}
+
+
+
 
 }
