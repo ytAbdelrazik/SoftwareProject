@@ -2,8 +2,6 @@ import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/commo
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Discussion } from './discussions.schema';
-import { CreateDiscussionDto } from '../dtos/create-discussion.dto';
-import { UpdateDiscussionDto } from '../dtos/update-discussion.dto';
 
 @Injectable()
 export class DiscussionsService {
@@ -17,41 +15,28 @@ export class DiscussionsService {
     courseId: string,
     userId: string,
     role: string,
-    createDiscussionDto: CreateDiscussionDto,
+    content: string,
   ): Promise<Discussion> {
     const newDiscussion = new this.discussionModel({
       courseId,
       userId,
       role,
-      content: createDiscussionDto.content,
+      content,
     });
     return newDiscussion.save();
-  }
-
-  async updateDiscussion(
-    forumId: string,
-    userId: string,
-    role: string,
-    updateDiscussionDto: UpdateDiscussionDto,
-  ): Promise<Discussion> {
-    const discussion = await this.discussionModel.findById(forumId);
-
-    if (!discussion) throw new NotFoundException('Forum not found');
-
-    if (discussion.userId !== userId) {
-      throw new ForbiddenException('You are not allowed to edit this forum');
-    }
-
-    discussion.content = updateDiscussionDto.content;
-    return discussion.save();
   }
 
   async deleteDiscussion(forumId: string, userId: string, role: string): Promise<void> {
     const discussion = await this.discussionModel.findById(forumId);
 
-    if (!discussion) throw new NotFoundException('Forum not found');
+    if (!discussion) {
+      throw new NotFoundException('Forum not found');
+    }
 
-    if (discussion.userId !== userId && role !== 'instructor') {
+    // Allow deletion if:
+    // 1. The user is the creator of the forum
+    // 2. The user is an instructor, and the forum was created by a student
+    if (discussion.userId !== userId && !(role === 'instructor' && discussion.role === 'student')) {
       throw new ForbiddenException('You are not allowed to delete this forum');
     }
 
