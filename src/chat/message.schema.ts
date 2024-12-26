@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
 import { Document, Types } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -20,6 +21,7 @@ export class Message extends Document {
 
   @Prop({ type: Boolean, default: false })
   isDeleted: boolean;
+
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

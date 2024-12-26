@@ -16,9 +16,10 @@ import { RolesGuard } from './user-managment/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { ChatModule } from './chat/chat.module';
 import { CourseSchema } from './course-management/course.schema'
-
 import { QuickNotesModule } from './quick-notes/notes.module';
 import { ChatService } from './chat/chat.service';
+
+
 @Module({
   imports: [
     // Database connection
@@ -55,8 +56,10 @@ import { ChatService } from './chat/chat.service';
     RolesGuard,
     Reflector,
     
+
    
     
+
   ],
 })
 export class AppModule {}
