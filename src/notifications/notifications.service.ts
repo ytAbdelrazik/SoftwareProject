@@ -31,5 +31,6 @@ export class NotificationService {
       { isRead: true },
       { new: true },
     );
+
   }
 }

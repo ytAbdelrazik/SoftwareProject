@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+
 @Schema({ timestamps: true })
 export class Notification extends Document {
   @Prop({ required: true })
@@ -17,6 +18,7 @@ export class Notification extends Document {
 
   @Prop({ default: Date.now })
   timestamp: Date;  // The time the notification was created
+
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);
