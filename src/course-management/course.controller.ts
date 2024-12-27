@@ -97,7 +97,7 @@ export class CourseController {
 
  
   /**
-   * Search courses by title, category, or createdBy
+   * Search courses by title, category, or createdBy  http://localhost:3000/courses/search?query=AI
    */
   @Get('search')
   async searchCourses(
