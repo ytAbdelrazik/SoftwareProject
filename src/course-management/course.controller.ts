@@ -8,6 +8,7 @@ import { NotFoundException } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { RolesGuard } from 'src/user-managment/roles.guard';
 import { Roles } from 'src/user-managment/roles.decorator';
+import { Course } from './course.schema';
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService,
@@ -42,17 +43,7 @@ export class CourseController {
   
 
 
-  @Get(':courseId')
-  async getCourseById(@Param('courseId') courseId: string) {
-    try {
-      const course = await this.courseService.getCourseById(courseId); // Call the service method
 
-      // Return the course if found
-      return course;
-    } catch (error) {
-     throw(error)
-    }
-  }
   
 
   
@@ -104,13 +95,27 @@ export class CourseController {
     return this.courseService.getMultimedia(courseId);
   }
 
-  @Get('search')
+ 
+  /**
+   * Search courses by title, category, or createdBy
+   */
+  @Post('search')
   async searchCourses(
-    @Query('q') query: string,
-    @Query('limit') limit: number = 10,
-    @Query('offset') offset: number = 0,
-  ) {
-    return this.courseService.searchCourses(query, limit, offset);
+    @Body('query') query: string
+  ): Promise<Course[]> {
+    if (!query) {
+      throw new NotFoundException('Query parameter is required for search');
+    }
+    return this.courseService.searchCourses(query);
+  }
+
+
+  /**
+   * Get course by ID
+   */
+  @Get(':courseId')
+  async getCourseById(@Param('courseId') courseId: string): Promise<Course> {
+    return this.courseService.getCourseById(courseId);
   }
   
   /**
@@ -162,6 +167,16 @@ export class CourseController {
   ) {
     return this.courseService.getStudentEnrolledCourses(studentId);
   }
-  
+
+  @Get('ordered-by-date')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Only instructors can access
+  async getCoursesOrderedByDate(@Query('order') order: 'asc' | 'desc' = 'desc', @Req() req: any) {
+    if (req.user.role !== 'instructor') {
+      throw new UnauthorizedException('Only instructors can order courses');
+    }
+    return this.courseService.getCoursesOrderedByDate(order);
+  }
+
   
 }

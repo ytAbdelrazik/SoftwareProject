@@ -18,6 +18,7 @@ import { ChatModule } from './chat/chat.module';
 import { CourseSchema } from './course-management/course.schema'
 import { ChatGateway } from './chat/chat.gateway';
 import { QuickNotesModule } from './quick-notes/notes.module';
+import { BackupModule } from './backup/backup.module';
 @Module({
   imports: [
     // Database connection
@@ -35,6 +36,7 @@ import { QuickNotesModule } from './quick-notes/notes.module';
     AuthModule,
     ChatModule,
     QuickNotesModule, // Ensure this is correctly imported
+    BackupModule,
 
     // Schemas
     MongooseModule.forFeature([

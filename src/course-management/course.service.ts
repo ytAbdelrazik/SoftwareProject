@@ -13,89 +13,89 @@ import { Inject } from '@nestjs/common';
 @Injectable()
 export class CourseService {
   constructor(
-  @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-  @InjectModel('Student') private studentModel: Model<StudentDocument>,
-  @InjectModel('Instructor') private instructorModel: Model<Instructor>, 
-  @Inject(forwardRef(() => UserService)) // Use forwardRef to resolve circular dependency
-  private readonly userService: UserService,
-){}
+    @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+    @InjectModel('Student') private studentModel: Model<StudentDocument>,
+    @InjectModel('Instructor') private instructorModel: Model<Instructor>,
+    @Inject(forwardRef(() => UserService)) // Use forwardRef to resolve circular dependency
+    private readonly userService: UserService,
+  ) { }
 
-async createCourse(createCourseDto: CreateCourseDto, instructorId: string): Promise<Course> {
-  try {
-    // Create a new course document using the provided data.
-    const newCourse = await this.courseModel.create(createCourseDto);
+  async createCourse(createCourseDto: CreateCourseDto, instructorId: string): Promise<Course> {
+    try {
+      // Create a new course document using the provided data.
+      const newCourse = await this.courseModel.create(createCourseDto);
 
-    // Fetch the instructor by ID and await the result
-    const instructor = await this.userService.getUserById(instructorId);
+      // Fetch the instructor by ID and await the result
+      const instructor = await this.userService.getUserById(instructorId);
 
-    // Check if the user is an instructor
-    if (instructor.role === 'instructor') {
-      // Add the new course to the instructor's 'createdCourses' array
-      const instructorTyped = instructor as Instructor;
-      instructorTyped.createdCourses = [...instructorTyped.createdCourses, newCourse];
+      // Check if the user is an instructor
+      if (instructor.role === 'instructor') {
+        // Add the new course to the instructor's 'createdCourses' array
+        const instructorTyped = instructor as Instructor;
+        instructorTyped.createdCourses = [...instructorTyped.createdCourses, newCourse];
 
-      // Save the updated instructor
+        // Save the updated instructor
 
-    } else {
-      throw new Error('User is not an instructor');
+      } else {
+        throw new Error('User is not an instructor');
+      }
+
+      return newCourse; // Return the created course.
+    } catch (error) {
+      throw new Error(`Error creating course: ${error.message}`);
     }
-
-    return newCourse; // Return the created course.
-  } catch (error) {
-    throw new Error(`Error creating course: ${error.message}`);
   }
-}
 
-//
- 
+  //
 
-async updateINS(courseId: string, instructorId: string): Promise<void> {
-  try {
 
-    const courseExists = await this.courseModel.exists({ courseId });
-    if (!courseExists) {
-      throw new Error(`Course with ID ${courseId} does not exist`);
-    }
-    // Fetch the course by ID
-    const course = await this.getCourseById(courseId);
-    if (!course) {
-      throw new Error(`Course with ID ${courseId} not found`);
-    }
+  async updateINS(courseId: string, instructorId: string): Promise<void> {
+    try {
 
-    // Fetch the instructor by ID
-    const instructor = await this.userService.getUserById(instructorId);
-    if (!instructor) {
-      throw new Error(`Instructor with ID ${instructorId} not found`);
-    }
+      const courseExists = await this.courseModel.exists({ courseId });
+      if (!courseExists) {
+        throw new Error(`Course with ID ${courseId} does not exist`);
+      }
+      // Fetch the course by ID
+      const course = await this.getCourseById(courseId);
+      if (!course) {
+        throw new Error(`Course with ID ${courseId} not found`);
+      }
 
-    // Check if the user is an instructor
-    if (instructor.role !== 'instructor') {
-      throw new Error(`User with ID ${instructorId} is not an instructor.`);
-    }
+      // Fetch the instructor by ID
+      const instructor = await this.userService.getUserById(instructorId);
+      if (!instructor) {
+        throw new Error(`Instructor with ID ${instructorId} not found`);
+      }
 
-    const instructorTyped = instructor as Instructor;
+      // Check if the user is an instructor
+      if (instructor.role !== 'instructor') {
+        throw new Error(`User with ID ${instructorId} is not an instructor.`);
+      }
 
-    // Check if the course is already in the instructor's `createdCourses` array
-    const isCourseAlreadyAdded = instructorTyped.createdCourses.some(
-      (createdCourse) => createdCourse.courseId === courseId,
-    );
+      const instructorTyped = instructor as Instructor;
 
-    if (!isCourseAlreadyAdded) {
-      // Update the `createdCourses` array to include the course
-      await this.instructorModel.updateOne(
-        { userId: instructorId }, // Match by instructor ID
-        { $push: { createdCourses: course } }, // Push the full course object to the array
+      // Check if the course is already in the instructor's `createdCourses` array
+      const isCourseAlreadyAdded = instructorTyped.createdCourses.some(
+        (createdCourse) => createdCourse.courseId === courseId,
       );
 
-      console.log(`Course with ID ${courseId} successfully added to instructor's createdCourses.`);
-    } else {
-      console.log(`Course with ID ${courseId} is already in instructor's createdCourses.`);
+      if (!isCourseAlreadyAdded) {
+        // Update the `createdCourses` array to include the course
+        await this.instructorModel.updateOne(
+          { userId: instructorId }, // Match by instructor ID
+          { $push: { createdCourses: course } }, // Push the full course object to the array
+        );
+
+        console.log(`Course with ID ${courseId} successfully added to instructor's createdCourses.`);
+      } else {
+        console.log(`Course with ID ${courseId} is already in instructor's createdCourses.`);
+      }
+    } catch (error) {
+      console.error('Error in updateINS:', error.message);
+      throw error;
     }
-  } catch (error) {
-    console.error('Error in updateINS:', error.message);
-    throw error;
   }
-}
 
 
 
@@ -104,7 +104,7 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return this.courseModel.find().exec();
   }
 
- 
+
   async updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     // Find the course in the database by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -128,7 +128,7 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.save();
   }
 
- 
+
   async revertToVersion(courseId: string, version: string): Promise<Course> {
     try {
       // Find the course by its unique courseId
@@ -136,22 +136,22 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       if (!course) {
         throw new NotFoundException(`Course with ID ${courseId} not found.`);
       }
-  
+
       // Find the specific version in the course's versions array
       const versionData = course.versions.find((v) => v.version === version);
       if (!versionData) {
         throw new NotFoundException(`Version ${version} not found for course ${courseId}.`);
       }
-  
+
       console.log('Reverting to version data:', versionData);
-  
+
       // Clone the content of the selected version and exclude the versions field
       const restoredContent = { ...versionData.content };
       delete restoredContent.versions;
-  
+
       // Apply the restored content to the course without creating a new version
       Object.assign(course, restoredContent);
-  
+
       // Save the updated course document to the database
       return course.save();
     } catch (error) {
@@ -159,11 +159,11 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       throw new InternalServerErrorException(`Failed to revert course version: ${error.message}`);
     }
   }
-  
-  
-  
 
- 
+
+
+
+
   async getVersions(courseId: string): Promise<Array<{ version: string; updatedAt: Date }>> {
     // Find the course by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -176,78 +176,74 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.versions.map(({ version, updatedAt }) => ({ version, updatedAt }));
   }
 
- 
-  
+
+
   // Add a multimedia resource to a course
   async addMultimedia(courseId: string, multimediaDto: AddMultimediaDto): Promise<Course> {
     const course = await this.courseModel.findOne({ courseId });
     if (!course) throw new NotFoundException('Course not found');
-  
+
     // Ensure multimedia field is initialized as an array
     if (!Array.isArray(course.multimedia)) {
       course.multimedia = [];
     }
-  
+
     // Check if multimedia with the same URL already exists
     const exists = course.multimedia.some((media) => media.url === multimediaDto.url);
     if (exists) throw new Error('Multimedia resource with this URL already exists.');
-  
+
     // Add the multimedia resource with a default uploadedAt value
     const multimediaWithUploadedAt = {
       ...multimediaDto,
       uploadedAt: multimediaDto.uploadedAt || new Date(), // Assign a default date if not provided
     };
-  
+
     course.multimedia.push(multimediaWithUploadedAt);
     return course.save();
   }
-  
+
   async getStudentEnrolledCourses(studentId: string): Promise<any[]> {
     const student = await this.studentModel.findOne({ userId: studentId }).exec();
-  
+
     if (!student) {
       throw new NotFoundException(`Student with ID ${studentId} not found`);
     }
-  
+
     // Debug enrolled courses
     console.log('Enrolled Courses:', student.enrolledCourses);
-  
+
     // Fetch all courses the student is enrolled in
     const enrolledCourses = await this.courseModel
       .find({
         courseId: { $in: student.enrolledCourses }, // Match courses based on the student's enrolled courses
       })
       .exec();
-  
+
     console.log('Fetched Enrolled Courses:', enrolledCourses);
-  
+
     return enrolledCourses;
   }
-  
+
 
   async getCourseById(courseId: string): Promise<Course> {
     try {
-      // Fetch the course by its ID
-
-      const course = await this.courseModel.findOne({ courseId });
-      console.log(course.courseId)
-
-      // If course is not found, throw an error
+      const course = await this.courseModel.findOne({ courseId }).exec(); // Query by courseId
       if (!course) {
         throw new Error(`Course with ID ${courseId} not found`);
       }
-
       return course;
     } catch (error) {
       throw new Error(`Error retrieving course: ${error.message}`);
     }
   }
+  
+  
 
   async courseExists(courseId: string): Promise<boolean> {
     try {
       // Try to find the course by its ID
       const course = await this.courseModel.findOne({ courseId });
-  
+
       // Return true if course exists, false otherwise
       return course !== null;
     } catch (error) {
@@ -256,9 +252,9 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       return false; // Return false if there was an error
     }
   }
-  
-  
-  
+
+
+
 
   // Remove a multimedia resource from a course
   async removeMultimedia(courseId: string, multimediaId: string): Promise<Course> {
@@ -277,21 +273,19 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.multimedia;
   }
 
-   
 
-async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
-  return this.courseModel
-    .find({
-      $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { category: { $regex: query, $options: 'i' } },
-        { createdBy: { $regex: query, $options: 'i' } },
-      ],
-    })
-    .limit(limit)
-    .skip(skip)
-    .exec();
-}
+
+  async searchCourses(query: string): Promise<Course[]> {
+    return this.courseModel
+      .find({
+        $or: [
+          { title: { $regex: query, $options: 'i' } },
+          { category: { $regex: query, $options: 'i' } },
+          { createdBy: { $regex: query, $options: 'i' } },
+        ],
+      })
+      .exec();
+  }
 
 
 
@@ -319,18 +313,29 @@ async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
   }
 
 
-async searchInstructors(query: string, limit = 10, skip = 0): Promise<any[]> {
-  return this.instructorModel
-    .find({
-      $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
-        { id: { $regex: query, $options: 'i' } },
-      ],
-    })
-    .limit(limit)
-    .skip(skip)
-    .exec();
+  async searchInstructors(query: string, limit = 10, skip = 0): Promise<any[]> {
+    return this.instructorModel
+      .find({
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { email: { $regex: query, $options: 'i' } },
+          { id: { $regex: query, $options: 'i' } },
+        ],
+      })
+      .limit(limit)
+      .skip(skip)
+      .exec();
+  }
+
+  /**
+   * Get courses ordered by creation date.
+   * @param order - 'asc' or 'desc'.
+   * @returns Ordered list of courses.
+   */
+  async getCoursesOrderedByDate(order: 'asc' | 'desc'): Promise<Course[]> {
+    return this.courseModel.find().sort({ createdAt: order === 'asc' ? 1 : -1 }).exec();
+  }
 }
 
-}
+
+
