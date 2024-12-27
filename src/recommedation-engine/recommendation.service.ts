@@ -1,14 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Recommendation } from './recommendation.schema';
---DTO??
+import { Recommendation, RecommendationDocument } from './recommendation.schema';
 
 @Injectable()
-export class InteractionService {
+export class RecommendationService {
   constructor(
-    @InjectModel(UserInteraction.name)
-    private interactionModel: Model<UserInteractionDocument>,
+    @InjectModel(Recommendation.name)
+    private recommendationModel: Model<RecommendationDocument>,
   ) {}
 
-  
+  async createRecommendation(userId: string, recommendedItems: string[]): Promise<Recommendation> {
+    const recommendation = new this.recommendationModel({
+      user: userId,
+      recommendedItems,
+    });
+    return recommendation.save();
+  }
+}

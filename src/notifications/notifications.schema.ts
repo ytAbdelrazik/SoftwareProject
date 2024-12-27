@@ -1,22 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+
+@Schema({ timestamps: true })
 export class Notification extends Document {
-  @Prop({ required: true }) // ID of the recipient (student/instructor)
-  recipientId: string;
+  @Prop({ required: true })
+  userId: string;  // The recipient of the notification
 
-  @Prop({ required: true }) // Notification message
-  message: string;
+  @Prop({ required: true })
+  message: string;  // The notification message
 
-  @Prop({ required: true, enum: ['reply', 'announcement', 'new_message'] }) // Type of notification
-  type: string;
+  @Prop({ default: false })
+  isRead: boolean;  // Flag to indicate if the notification is read
 
-  @Prop({ default: false }) // Whether the notification has been read
-  isRead: boolean;
+  @Prop({ required: true })
+  type: string;  // Type of notification, e.g., 'message' or 'system'
 
-  @Prop({ default: Date.now }) // Timestamp of notification
-  createdAt: Date;
+  @Prop({ default: Date.now })
+  timestamp: Date;  // The time the notification was created
+
 }
 
 export const NotificationSchema = SchemaFactory.createForClass(Notification);

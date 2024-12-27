@@ -1,22 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Notification } from './notifications.schema';
+import { Notification } from 'src/notifications/notifications.schema';
 
 @Injectable()
-export class NotificationsService {
-  constructor(@InjectModel(Notification.name) private notificationModel: Model<Notification>) {}
+export class NotificationService {
+  constructor(
+    @InjectModel(Notification.name) private notificationModel: Model<Notification>,
+  ) {}
 
-  async createNotification(recipientId: string, message: string, type: string): Promise<Notification> {
-    const notification = new this.notificationModel({ recipientId, message, type });
+  // Create notification for user
+  async createNotification(userId: string, message: string, type: string): Promise<Notification> {
+    const notification = new this.notificationModel({
+      userId,
+      message,
+      type,
+    });
     return notification.save();
   }
 
-  async getNotifications(recipientId: string): Promise<Notification[]> {
-    return this.notificationModel.find({ recipientId }).sort({ createdAt: -1 }).exec();
+  // Get unread notifications for a user
+  async getUnreadNotifications(userId: string): Promise<Notification[]> {
+    return this.notificationModel.find({ userId, isRead: false }).exec();
   }
 
+  // Mark notifications as read
   async markAsRead(notificationId: string): Promise<Notification> {
-    return this.notificationModel.findByIdAndUpdate(notificationId, { isRead: true }, { new: true }).exec();
+    return this.notificationModel.findByIdAndUpdate(
+      notificationId,
+      { isRead: true },
+      { new: true },
+    );
+
   }
 }

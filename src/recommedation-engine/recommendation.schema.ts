@@ -1,18 +1,20 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
-export type RecommendationDoucument = HydratedDocument<Recommendation>
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+import { User } from 'src/user-managment/users.schema'; // Assuming the User schema exists
+import * as mongoose from 'mongoose';
+
+export type RecommendationDocument = HydratedDocument<Recommendation>;
+
 @Schema()
 export class Recommendation {
- 
-
-  @ManyToOne(() => User, (user) => user.recommendations)
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   user: User; // Associated user entity
 
-  @Column('simple-array')
+  @Prop({ type: [String], required: true })
   recommendedItems: string[]; // Array of recommended courses/modules
 
-  @CreateDateColumn()
+  @Prop({ type: Date, default: Date.now })
   generatedAt: Date; // Timestamp of recommendation generation
 }
+
+export const RecommendationSchema = SchemaFactory.createForClass(Recommendation);
