@@ -275,7 +275,7 @@ export class CourseService {
 
 
 
-  async searchCourses(query: string): Promise<Course[]> {
+  async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
     return this.courseModel
       .find({
         $or: [
@@ -284,6 +284,8 @@ export class CourseService {
           { createdBy: { $regex: query, $options: 'i' } },
         ],
       })
+      .limit(limit)
+      .skip(skip)
       .exec();
   }
 

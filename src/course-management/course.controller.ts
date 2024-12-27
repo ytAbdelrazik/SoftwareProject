@@ -99,16 +99,17 @@ export class CourseController {
   /**
    * Search courses by title, category, or createdBy
    */
-  @Post('search')
+  @Get('search')
   async searchCourses(
-    @Body('query') query: string
+    @Query('query') query: string,
+    @Query('limit') limit = 10,
+    @Query('skip') skip = 0,
   ): Promise<Course[]> {
     if (!query) {
       throw new NotFoundException('Query parameter is required for search');
     }
-    return this.courseService.searchCourses(query);
+    return this.courseService.searchCourses(query, limit, skip);
   }
-
 
   /**
    * Get course by ID
