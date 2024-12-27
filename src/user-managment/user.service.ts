@@ -247,6 +247,28 @@ export class UserService {
 
 
 
+  async updateCourseAvailability(courseId: string, isAvailable: boolean): Promise<Course> {
+    const course = await this.courseModel.findOne({ courseId }).exec();
+  
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${courseId} not found`);
+    }
+  
+    course.isAvailable = isAvailable;
+    return course.save();
+  }
+  //for when the admin wants to update the availability of a course, toggle the bool
 
 
+  
+  async deleteUser(userId: string): Promise<void> {
+    const user = await this.userModel.findOne({ userId }).exec();
+  
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    await this.userModel.deleteOne({ userId }).exec();
+  }
+  
 }

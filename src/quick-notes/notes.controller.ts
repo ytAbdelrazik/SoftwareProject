@@ -12,7 +12,7 @@ export class QuickNotesController {
     return this.quickNotesService.create(createNoteDto);
   }
 
-  @Get('module/:moduleId')
+@Get('module/:moduleId')
   findByModule(@Param('moduleId') moduleId: string) {
     return this.quickNotesService.findByModule(moduleId);
   }

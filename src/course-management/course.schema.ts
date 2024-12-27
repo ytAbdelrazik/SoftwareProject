@@ -27,6 +27,9 @@ export class Course {
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
 
+  @Prop({ default: true }) // for when made unavaiilable by instructor or admin
+  isAvailable: boolean;
+  
   @Prop({ type: [String], default: [] })
   messages: string[]; 
 
