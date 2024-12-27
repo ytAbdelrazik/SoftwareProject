@@ -128,6 +128,7 @@ export class UserController {
     return this.userService.deleteUser(userId);
   }
 
+  
   @Delete('users/self')
   @UseGuards(RolesGuard)
   @Roles('student','instructor', 'admin') // Users with these roles can delete themselves

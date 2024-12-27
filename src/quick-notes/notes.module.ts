@@ -5,6 +5,7 @@ import { QuickNotesController } from './notes.controller';
 import { NoteSchema } from './notes.schema';
 import { Module as CourseModuleSchema, ModuleSchema } from '../course-management/module.schema'; 
 
+
 @Module({
   imports: [
     MongooseModule.forFeature([

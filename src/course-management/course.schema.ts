@@ -29,7 +29,7 @@ export class Course {
 
   @Prop({ default: true }) // for when made unavaiilable by instructor or admin
   isAvailable: boolean;
-  
+   
   @Prop({ type: [String], default: [] })
   messages: string[]; 
 

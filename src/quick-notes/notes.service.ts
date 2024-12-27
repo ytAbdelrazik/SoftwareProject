@@ -14,6 +14,7 @@ export class QuickNotesService {
     const note = new this.noteModel(createNoteDto); //create
     return note.save(); //returns created note saved in the db 'note.save'
   }
+  
 
   async findByModule(moduleId: string): Promise<Note[]> {
     return this.noteModel.find({ moduleId }).exec();

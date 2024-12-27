@@ -11,6 +11,7 @@ export class QuickNotesController {
   create(@Body() createNoteDto: CreateNoteDto) {
     return this.quickNotesService.create(createNoteDto);
   }
+  
 
 @Get('module/:moduleId')
   findByModule(@Param('moduleId') moduleId: string) {

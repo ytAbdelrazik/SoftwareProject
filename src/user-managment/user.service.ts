@@ -228,7 +228,6 @@ export class UserService {
 
 
 
-
   async isStudentEnrolledInCourse(courseId: string, studentId: string): Promise<boolean> {
     // Fetch the list of courses the student is enrolled in
    
