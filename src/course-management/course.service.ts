@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { forwardRef } from '@nestjs/common';
@@ -229,26 +229,26 @@ export class CourseService {
     try {
       // Query the database for the course with the given courseId
       const course = await this.courseModel.findOne({ courseId }).exec();
-  
+
       // If no course is found, throw a NotFoundException
       if (!course) {
         throw new NotFoundException(`Course with ID ${courseId} not found`);
       }
-  
+
       return course; // Return the found course
     } catch (error) {
       // Handle unexpected errors and log for debugging
       console.error('Error retrieving course:', error.message);
-  
+
       if (error instanceof NotFoundException) {
         throw error; // Rethrow if it's a NotFoundException
       }
-  
+
       throw new InternalServerErrorException('Error retrieving course');
     }
   }
-  
-  
+
+
 
   async courseExists(courseId: string): Promise<boolean> {
     try {
@@ -349,6 +349,77 @@ export class CourseService {
   async getCoursesOrderedByDate(order: 'asc' | 'desc'): Promise<Course[]> {
     return this.courseModel.find().sort({ createdAt: order === 'asc' ? 1 : -1 }).exec();
   }
+
+  /**
+   * Fetch completed courses for a student.
+   * @param studentId - The ID of the student.
+   * @returns A list of completed courses.
+   */
+  async getCompletedCourses(studentId: string): Promise<any[]> {
+    const student = await this.studentModel.findOne({ userId: studentId }).exec();
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID '${studentId}' not found.`);
+    }
+
+    // Map completed courses with additional metadata
+    const completedCourseDetails = await Promise.all(
+      student.completedCourses.map(async (completedCourse) => {
+        const course = await this.courseModel.findOne({ courseId: completedCourse.courseId }).exec();
+        return {
+          ...course.toObject(),
+          completionDate: completedCourse.completionDate,
+          score: completedCourse.score,
+        };
+      }),
+    );
+
+    return completedCourseDetails;
+  }
+
+
+  async getStudentsWhoCompletedCourse(instructorId: string, courseId: string): Promise<any[]> {
+    // Validate that the course exists and is created by the instructor
+    const course = await this.courseModel.findOne({ courseId, createdBy: instructorId }).exec();
+    if (!course) {
+      throw new NotFoundException(`Course with ID '${courseId}' not found or you are not the creator.`);
+    }
+
+    // Find all students who have completed the course
+    const students = await this.studentModel
+      .find({ 'completedCourses.courseId': courseId }, { name: 1, email: 1, 'completedCourses.$': 1 })
+      .exec();
+
+    if (!students || students.length === 0) {
+      throw new NotFoundException(`No students have completed the course with ID '${courseId}'.`);
+    }
+
+    return students.map((student) => ({
+      name: student.name,
+      email: student.email,
+      completionDate: student.completedCourses[0].completionDate,
+      score: student.completedCourses[0].score,
+    }));
+  }
+  
+  async addKeywordsToCourse(courseId: string, keywords: string[], instructorId: string): Promise<any> {
+    const course = await this.courseModel.findOne({ courseId }).exec();
+  
+    if (!course) {
+      throw new NotFoundException(`Course with ID '${courseId}' not found`);
+    }
+  
+    if (course.createdBy !== instructorId) {
+      throw new UnauthorizedException('You are not authorized to add keywords to this course');
+    }
+  
+    course.keywords = Array.from(new Set([...(course.keywords || []), ...keywords])); // Avoid duplicates
+    return await course.save();
+  }
+  
+
+
+
 }
 
 

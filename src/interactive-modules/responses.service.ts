@@ -17,72 +17,58 @@ export class ResponsesService {
    * @param submitResponseDto - The DTO containing quizId, studentId, and answers.
    * @returns The saved response with calculated score.
    */
-  async submitResponse(studentId: string, quizId: string, answers: any[]): Promise<any> {
-    // Check if the student already submitted the quiz
-    const existingResponse = await this.responseModel.findOne({ studentId, quizId }).exec();
-    if (existingResponse) {
-      throw new ConflictException(`Student with ID '${studentId}' has already attempted the quiz.`);
-    }
-
-
-
-    // Retrieve the quiz
+  async submitResponse(
+    studentId: string,
+    quizId: string,
+    answers: { questionId: string; selectedOption: string }[],
+  ): Promise<any> {
     const quiz = await this.quizModel.findOne({ quizId }).exec();
+  
     if (!quiz) {
-      throw new NotFoundException(`Quiz with ID '${quizId}' not found.`);
+      throw new NotFoundException(`Quiz with ID '${quizId}' not found`);
     }
-
-    // Randomize the questions for the student
-    const randomizedQuestions = quiz.questions.sort(() => Math.random() - 0.5);
-
-    // Calculate score and identify wrong answers
+  
+    if (quiz.isAttempted) {
+      throw new ConflictException(`You can only take this quiz once.`);
+    }
+  
+    // Calculate the score
     let score = 0;
-    const wrongAnswers = [];
-
-    randomizedQuestions.forEach((question) => {
-      const studentAnswer = answers.find((a) => a.questionId === question.question);
-      if (studentAnswer && studentAnswer.selectedOption === question.answer) {
-        score++;
+    const feedback = [];
+  
+    for (const answer of answers) {
+      const question = quiz.questions.find((q) => q.question === answer.questionId);
+  
+      if (!question) {
+        throw new NotFoundException(`Question with ID '${answer.questionId}' not found`);
+      }
+  
+      const isCorrect = question.answer === answer.selectedOption;
+      if (isCorrect) {
+        score += 1; // Increment score for correct answers
       } else {
-        wrongAnswers.push({
-          question: question.question,
+        feedback.push({
+          questionId: answer.questionId,
           correctAnswer: question.answer,
-          studentAnswer: studentAnswer ? studentAnswer.selectedOption : 'No Answer',
+          yourAnswer: answer.selectedOption,
         });
       }
-    });
-
-    // Calculate pass/fail status
-    const passPercentage = 0.7; // 70% to pass
-    const isPassed = score >= quiz.questions.length * passPercentage;
-
-    const feedbackMessage = isPassed
-      ? 'You are good to go to the next course.'
-      : 'You need to study again for the course.';
-
-    // Mark the quiz as attempted
-    if (!quiz.isAttempted) {
-      quiz.isAttempted = true;
-      await quiz.save();
     }
-
-    // Save the response
-    const newResponse = new this.responseModel({
+  
+    // Mark quiz as attempted
+    quiz.isAttempted = true;
+    await quiz.save();
+  
+    // Return feedback and score
+    return {
       studentId,
       quizId,
-      answers,
       score,
-      isCompleted: true,
-    });
-    await newResponse.save();
-
-    return {
-      message: feedbackMessage,
-      score,
-      isPassed,
-      wrongAnswers,
+      feedback,
+      message: score >= quiz.questions.length * 0.6 ? 'You passed!' : 'You need to study again!',
     };
   }
+  
 
 
 

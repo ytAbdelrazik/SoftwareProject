@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Quiz, QuizDocument } from './quizzes.schema';
@@ -39,56 +39,87 @@ export class QuizzesService {
   }
 
 
-  async createQuiz(moduleId: string, createQuizDto: CreateQuizDto): Promise<Quiz> {
-    const { numberOfQuestions, questionType, difficulty } = createQuizDto;
-  
-    // Validate module existence
+  async createQuiz(moduleId: string, numberOfQuestions: number, questionType: string, difficulty: string): Promise<Quiz> {
     const module = await this.moduleModel.findOne({ moduleId }).exec();
     if (!module) {
       throw new NotFoundException(`Module with ID '${moduleId}' not found`);
     }
   
-    // Check for existing quiz for the module
     const existingQuiz = await this.quizModel.findOne({ moduleId }).exec();
     if (existingQuiz) {
       throw new ConflictException(`A quiz for module '${moduleId}' already exists`);
     }
   
-    // Fetch question bank for the module
     const questionBank = await this.questionBankModel.findOne({ moduleId }).exec();
     if (!questionBank || questionBank.questions.length === 0) {
       throw new NotFoundException(`No question bank found for module '${moduleId}'`);
     }
   
-    // Filter questions by type
-    let filteredQuestions = [];
-    if (questionType === 'both') {
-      filteredQuestions = questionBank.questions;
-    } else {
-      filteredQuestions = questionBank.questions.filter(q => q.type === questionType);
+    const filteredQuestions = questionBank.questions.filter((q) => q.type === questionType && q.difficulty === difficulty);
+    if (filteredQuestions.length < numberOfQuestions) {
+      throw new ConflictException(`Not enough questions available. Found: ${filteredQuestions.length}`);
     }
   
-    // Check if enough questions are available
-    if (filteredQuestions.length < numberOfQuestions) {
+    const selectedQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, numberOfQuestions);
+  
+    const newQuiz = new this.quizModel({
+      quizId: `QUIZ-${Date.now()}`,
+      moduleId,
+      questionType,
+      difficulty,
+      numberOfQuestions,
+      questions: selectedQuestions,
+    });
+  
+    return await newQuiz.save();
+  }
+  
+  
+  async getQuizById(quizId: string): Promise<Quiz> {
+    const quiz = await this.quizModel.findOne({ quizId }).exec();
+    if (!quiz) {
+      throw new NotFoundException(`Quiz with ID '${quizId}' not found.`);
+    }
+    return quiz;
+  }
+  
+
+  async generateQuizForStudent(quizId: string, studentId: string): Promise<any> {
+    const quiz = await this.quizModel.findOne({ quizId }).exec();
+  
+    if (!quiz) {
+      throw new NotFoundException(`Quiz with ID '${quizId}' not found`);
+    }
+  
+    const questionBank = await this.questionBankModel.findOne({ moduleId: quiz.moduleId }).exec();
+    if (!questionBank || questionBank.questions.length === 0) {
+      throw new NotFoundException(`No question bank found for module '${quiz.moduleId}'`);
+    }
+  
+    const filteredQuestions = questionBank.questions.filter(
+      (q) => q.type === quiz.questionType && q.difficulty === quiz.difficulty
+    );
+  
+    if (filteredQuestions.length < quiz.numberOfQuestions) {
       throw new ConflictException(
-        `Not enough questions of type '${questionType}' in the question bank. Available: ${filteredQuestions.length}`
+        `Not enough questions available for this quiz. Expected: ${quiz.numberOfQuestions}, Found: ${filteredQuestions.length}`
       );
     }
   
-    // Randomly select the required number of questions
-    const selectedQuestions = filteredQuestions
-      .sort(() => 0.5 - Math.random()) // Shuffle the array
-      .slice(0, numberOfQuestions);
+    // Randomize questions
+    const randomizedQuestions = filteredQuestions.sort(() => 0.5 - Math.random()).slice(0, quiz.numberOfQuestions);
   
-    // Create and save the quiz
-    const newQuiz = new this.quizModel({
-      quizId: createQuizDto.quizId,
-      moduleId,
-      difficulty,
-      questions: selectedQuestions,
-    });
-    return await newQuiz.save();
+    // Return quiz with randomized questions
+    return {
+      quizId: quiz.quizId,
+      moduleId: quiz.moduleId,
+      questions: randomizedQuestions,
+    };
   }
+  
+  
+  
+  
   
   async generateRandomizedQuiz(moduleId: string, numberOfQuestions: number, questionTypes: string[]): Promise<Quiz> {
     // Validate the module exists

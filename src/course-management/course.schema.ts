@@ -30,6 +30,11 @@ export class Course {
   @Prop({ type: [String], default: [] })
   messages: string[]; 
 
+  @Prop({ type: [String], required: false }) // New field for keywords
+  keywords?: string[]; 
+
+
+
   // Multimedia resources related to the course
   @Prop({
     type: [

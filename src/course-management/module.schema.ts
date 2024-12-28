@@ -19,12 +19,15 @@ export class Module {
 
   @Prop({ type: [String], required: false })
   resources?: string[];
-  
+
   @Prop({ required: true })
   createdBy: string;
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;
+  
+  @Prop({ default: false }) // New field to mark as outdated
+  isOutdated: boolean;
 }
 
 export const ModuleSchema = SchemaFactory.createForClass(Module);

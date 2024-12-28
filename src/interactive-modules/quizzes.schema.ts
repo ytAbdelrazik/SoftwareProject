@@ -28,6 +28,10 @@ export class Quiz {
   @Prop({ required: true })
   difficulty: 'easy' | 'medium' | 'hard' | 'mixed';
 
+  @Prop({ required: true })
+  numberOfQuestions: number; // Include this field
+  
+
   @Prop({ default: false })
   isAttempted: boolean; // Marks if the quiz has been taken by a student
 }

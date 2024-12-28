@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, UseGuards, Get, Patch, BadRequestException, Delete, Req } from '@nestjs/common';
+import { Controller, Post, Body, Param, UseGuards, Get, Patch, BadRequestException, Delete, Req, NotFoundException } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dtos/create-quiz.dto';
 import { RolesGuard } from '../user-managment/roles.guard';
@@ -12,20 +12,30 @@ export class QuizzesController {
   /**
    * Generate a randomized quiz.
    */
-  @Post(':moduleId/generate')
+  @Post('create/:moduleId')
   @UseGuards(RolesGuard)
-  @Roles('instructor') // Only instructors can generate quizzes
-  async generateQuiz(
+  @Roles('instructor')
+  async createQuiz(
     @Param('moduleId') moduleId: string,
     @Body('numberOfQuestions') numberOfQuestions: number,
-    @Body('questionTypes') questionTypes: string[],
+    @Body('questionType') questionType: string,
+    @Body('difficulty') difficulty: string,
   ) {
-    if (!numberOfQuestions || !questionTypes) {
-      throw new BadRequestException('Number of questions and question types are required');
-    }
-
-    return this.quizzesService.generateRandomizedQuiz(moduleId, numberOfQuestions, questionTypes);
+    return this.quizzesService.createQuiz(moduleId, numberOfQuestions, questionType, difficulty);
   }
+  
+  
+
+  @Post(':quizId/start')
+  @UseGuards(RolesGuard)
+  @Roles('student')
+  async startQuiz(@Param('quizId') quizId: string, @Req() req) {
+    const studentId = req.user.userId;
+    return this.quizzesService.generateQuizForStudent(quizId, studentId);
+  }
+  
+  
+
 
   /**
    * Get a quiz by module ID.

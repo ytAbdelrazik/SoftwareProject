@@ -28,23 +28,16 @@ export class ModuleController {
    * Accessible by anyone.
    * @param courseId - ID of the course.
    */
-  @Get(':courseId')
-  async getModulesByCourse(@Param('courseId') courseId: string) {
-    return this.moduleService.getModulesByCourse(courseId);
-  }
-
-
-  @Patch(':moduleId')
+  @Get(':courseId/modules')
   @UseGuards(RolesGuard)
-  @Roles('instructor') // Only instructors can access this
-  async updateModule(
-    @Param('moduleId') moduleId: string,
-    @Body() updateModuleDto: UpdateModuleDto,
-    @Req() req: any, // Extract the logged-in user from the request
-  ) {
-    const userId = req.user.userId; // Logged-in instructor's ID from the JWT
-    return this.moduleService.updateModule(userId, moduleId, updateModuleDto);
+  @Roles('student') // Only students can access
+  async getModulesForStudents(@Param('courseId') courseId: string) {
+    return this.moduleService.getModulesForStudents(courseId);
   }
+  
+
+
+
 
 
   @Get('ordered-by-date')
@@ -56,4 +49,19 @@ export class ModuleController {
     }
     return this.moduleService.getModulesOrderedByDate(order);
   }
+
+
+  @Patch(':moduleId')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Only instructors can update modules
+  async updateModule(
+    @Req() req,
+    @Param('moduleId') moduleId: string,
+    @Body() updateData: any,
+  ) {
+    const userId = req.user.userId; // Fetch instructor ID from token
+    return this.moduleService.updateModule(userId, moduleId, updateData);
+  }
+  
+
 }

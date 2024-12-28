@@ -18,4 +18,6 @@ export class CreateQuizDto {
 
   @IsEnum(['MCQ', 'TF', 'both'], { message: 'Question type must be MCQ, TF, or both' })
   questionType: 'MCQ' | 'TF' | 'both';
+
+  
 }

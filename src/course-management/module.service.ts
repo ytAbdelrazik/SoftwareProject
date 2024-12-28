@@ -97,21 +97,31 @@ export class ModuleService {
   async updateModule(
     userId: string,
     moduleId: string,
-    updateData: UpdateModuleDto,
+    updateData: any,
   ): Promise<Module> {
     const module = await this.moduleModel.findOne({ moduleId }).exec();
-
+  
     if (!module) {
-      throw new NotFoundException(`Module with ID ${moduleId} not found`);
+      throw new NotFoundException(`Module with ID '${moduleId}' not found`);
     }
-
-    // Validate that the instructor is authorized
-    await this.validateInstructorForCourse(userId, module.courseId);
-
-    // Update the module
+  
+    // Validate ownership
+    const course = await this.courseModel.findOne({ courseId: module.courseId }).exec();
+    if (!course || course.createdBy !== userId) {
+      throw new UnauthorizedException('You are not authorized to update this module');
+    }
+  
+    // Update module fields
     Object.assign(module, updateData);
-    return module.save();
+  
+    // Handle `isOutdated` field if included
+    if (typeof updateData.isOutdated !== 'undefined') {
+      module.isOutdated = updateData.isOutdated;
+    }
+  
+    return await module.save();
   }
+  
 
   /**
  * Get modules ordered by creation date.
@@ -121,5 +131,12 @@ export class ModuleService {
   async getModulesOrderedByDate(order: 'asc' | 'desc'): Promise<Module[]> {
     return this.moduleModel.find().sort({ createdAt: order === 'asc' ? 1 : -1 }).exec();
   }
+
+  async getModulesForStudents(courseId: string): Promise<Module[]> {
+    return this.moduleModel.find({ courseId, isOutdated: { $ne: true } }).exec();
+  }
+  
+
+  
 
 }

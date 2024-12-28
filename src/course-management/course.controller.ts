@@ -183,7 +183,32 @@ export class CourseController {
     }
     return this.courseService.getCoursesOrderedByDate(order);
   }
+  
+  @Get('completed')
+  @Roles('student') // Only students can access this endpoint
+  async getCompletedCourses(@Req() req) {
+    const studentId = req.user.userId; // Fetch student ID from the logged-in user's JWT
+    return this.courseService.getCompletedCourses(studentId);
+  }
 
+  @Get(':courseId/completed-students')
+  @Roles('instructor') // Only instructors can access this endpoint
+  async getStudentsWhoCompletedCourse(@Req() req, @Param('courseId') courseId: string) {
+    const instructorId = req.user.userId; // Extract instructor ID from logged-in user's token
+    return this.courseService.getStudentsWhoCompletedCourse(instructorId, courseId);
+  }
+
+  @Post(':courseId/keywords')
+@UseGuards(RolesGuard)
+@Roles('instructor') // Only instructors can access
+async addKeywordsToCourse(
+  @Param('courseId') courseId: string,
+  @Body('keywords') keywords: string[],
+  @Req() req,
+) {
+  const instructorId = req.user.userId; // Fetch instructor ID from token
+  return this.courseService.addKeywordsToCourse(courseId, keywords, instructorId);
+}
 
   
 }

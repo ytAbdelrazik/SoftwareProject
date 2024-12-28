@@ -8,20 +8,18 @@ import { Roles } from '../user-managment/roles.decorator';
 export class ResponsesController {
   constructor(private readonly responsesService: ResponsesService) {}
 
-  @Post('submit')
+  @Post(':quizId/submit')
   @UseGuards(RolesGuard)
-  @Roles('student') // Only students can submit responses
-  async submitResponse(
+  @Roles('student') // Only students can submit answers
+  async submitAnswers(
+    @Param('quizId') quizId: string,
+    @Body('answers') answers: { questionId: string; selectedOption: string }[],
     @Req() req,
-    @Body('quizId') quizId: string, // Extract from Body
-    @Body('answers') answers: any[],
   ) {
-    const studentId = req.user.userId; // Fetch student ID from the logged-in user
-    if (!quizId) {
-      throw new NotFoundException(`Quiz ID is required.`);
-    }
+    const studentId = req.user.userId; // Fetch the student ID from the token
     return this.responsesService.submitResponse(studentId, quizId, answers);
   }
+  
   
   
 
