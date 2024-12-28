@@ -23,6 +23,12 @@ export class Student extends User {
 
   @Prop({ default: Date.now })
   createdAt: Date;
+  
+  @Prop({ default: [] })
+  completedCourses: string[];
+
+  @Prop({ default: 0 })
+  gpa: number;
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

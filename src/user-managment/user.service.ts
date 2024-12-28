@@ -182,7 +182,18 @@ export class UserService {
     const admin = await this.adminModel.findOne({ email }).exec();
     return admin;
   }
+
   
+  async searchStudentsByName(name: string, limit: number, offset: number): Promise<Student[]> {
+    return this.studentModel
+      .find({
+        name: { $regex: name, $options: 'i' }, // Case-insensitive search
+      })
+      .limit(limit)
+      .skip(offset)
+      .exec();
+  }
+
 
 
 

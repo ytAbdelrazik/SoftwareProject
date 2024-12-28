@@ -45,23 +45,37 @@ export class ModuleService {
   async createModule(userId: string, moduleDto: CreateModuleDto): Promise<Module> {
     // Validate the instructor for the course
     await this.validateInstructorForCourse(userId, moduleDto.courseId);
-
+  
+    // Fetch the instructor's details
+    const instructor = await this.instructorModel.findOne({ userId }).exec();
+  
+    if (!instructor) {
+      throw new NotFoundException(`Instructor with ID '${userId}' not found`);
+    }
+  
     // Check for duplicate moduleId within the course
-    const existingModule = await this.moduleModel.findOne({
-      moduleId: moduleDto.moduleId,
-      courseId: moduleDto.courseId,
-    }).exec();
-
+    const existingModule = await this.moduleModel
+      .findOne({
+        moduleId: moduleDto.moduleId,
+        courseId: moduleDto.courseId,
+      })
+      .exec();
+  
     if (existingModule) {
       throw new ConflictException(
         `A module with ID '${moduleDto.moduleId}' already exists for course '${moduleDto.courseId}'.`,
       );
     }
-
-    // Create and save the new module
-    const newModule = new this.moduleModel(moduleDto);
+  
+    // Add the `createdBy` field with the instructor's name
+    const newModule = new this.moduleModel({
+      ...moduleDto,
+      createdBy: instructor.name, // Automatically set createdBy to the instructor's name
+    });
+  
     return await newModule.save();
   }
+  
 
   /**
    * Get all modules for a specific course.

@@ -19,6 +19,9 @@ export class Module {
 
   @Prop({ type: [String], required: false })
   resources?: string[];
+  
+  @Prop({ required: true })
+  createdBy: string;
 
   @Prop({ required: true, default: Date.now })
   createdAt: Date;

@@ -9,6 +9,7 @@ import {
   Query,
   UnauthorizedException,
   Req,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -86,6 +87,24 @@ export class UserController {
     }
 
     throw new Error('User is not an instructor');
+  }
+
+  @Get('search')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Restrict to instructors
+  async searchStudents(
+    @Query('name') name: string,
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
+  ) {
+    if (!name) {
+      throw new NotFoundException('Name parameter is required for search');
+    }
+    const students = await this.userService.searchStudentsByName(name, limit, offset);
+    if (!students || students.length === 0) {
+      throw new NotFoundException(`No students found for name: "${name}"`);
+    }
+    return students;
   }
 
 

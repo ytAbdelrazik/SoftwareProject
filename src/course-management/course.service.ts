@@ -227,13 +227,24 @@ export class CourseService {
 
   async getCourseById(courseId: string): Promise<Course> {
     try {
-      const course = await this.courseModel.findOne({ courseId }).exec(); // Query by courseId
+      // Query the database for the course with the given courseId
+      const course = await this.courseModel.findOne({ courseId }).exec();
+  
+      // If no course is found, throw a NotFoundException
       if (!course) {
-        throw new Error(`Course with ID ${courseId} not found`);
+        throw new NotFoundException(`Course with ID ${courseId} not found`);
       }
-      return course;
+  
+      return course; // Return the found course
     } catch (error) {
-      throw new Error(`Error retrieving course: ${error.message}`);
+      // Handle unexpected errors and log for debugging
+      console.error('Error retrieving course:', error.message);
+  
+      if (error instanceof NotFoundException) {
+        throw error; // Rethrow if it's a NotFoundException
+      }
+  
+      throw new InternalServerErrorException('Error retrieving course');
     }
   }
   
@@ -321,13 +332,14 @@ export class CourseService {
         $or: [
           { name: { $regex: query, $options: 'i' } },
           { email: { $regex: query, $options: 'i' } },
-          { id: { $regex: query, $options: 'i' } },
+          { userId: { $regex: query, $options: 'i' } }, // Use userId instead of id
         ],
       })
       .limit(limit)
       .skip(skip)
       .exec();
   }
+
 
   /**
    * Get courses ordered by creation date.

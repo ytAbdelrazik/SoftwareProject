@@ -8,6 +8,7 @@ import { InstructorSchema } from './instructor.schema';
 import { RolesGuard } from '../user-managment/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
 
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -22,6 +23,6 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   controllers: [ModuleController],
   providers: [ModuleService, RolesGuard],
-  exports: [ModuleService], // Export service if needed elsewhere
+  exports: [MongooseModule,ModuleService], // Export service if needed elsewhere
 })
 export class ModuleModule {}

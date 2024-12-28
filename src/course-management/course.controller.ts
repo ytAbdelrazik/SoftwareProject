@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, Param, Query, Patch, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Body, Param, Query, Patch, UseGuards, Req, UnauthorizedException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { CourseService } from './course.service';
 import { CreateCourseDto } from './dots/create-course.dto';
 import { UpdateCourseDto } from './dots/update-course.dto';
@@ -40,13 +40,7 @@ export class CourseController {
     await this.updateInstructorCourses((await course).courseId,insID);
     return;
   }
-  
-
-
-
-  
-
-  
+    
 
   @Get()
   async getAllCourses() {
@@ -114,7 +108,7 @@ export class CourseController {
   /**
    * Get course by ID
    */
-  @Get(':courseId')
+  @Get('id/:courseId')
   async getCourseById(@Param('courseId') courseId: string): Promise<Course> {
     return this.courseService.getCourseById(courseId);
   }
@@ -152,13 +146,24 @@ export class CourseController {
   }
   
   @Get('instructors/search')
+  @UseGuards(RolesGuard)
+  @Roles('student') // Only students can access this endpoint
   async searchInstructors(
-    @Query('q') query: string,
+    @Query('query') query: string, // Updated to 'query'
     @Query('limit') limit: number = 10,
     @Query('offset') offset: number = 0,
   ) {
-    return this.courseService.searchInstructors(query, limit, offset);
+    if (!query) {
+      throw new NotFoundException('Query parameter is required for search');
+    }
+    const instructors = await this.courseService.searchInstructors(query, limit, offset);
+    if (!instructors || instructors.length === 0) {
+      throw new NotFoundException(`No instructors found for query: "${query}"`);
+    }
+    return instructors;
   }
+
+
   
   @Get('students/:studentId/enrolled-courses')
   @UseGuards(RolesGuard)
@@ -169,15 +174,16 @@ export class CourseController {
     return this.courseService.getStudentEnrolledCourses(studentId);
   }
 
-  @Get('ordered-by-date')
-  @UseGuards(RolesGuard)
-  @Roles('instructor') // Only instructors can access
-  async getCoursesOrderedByDate(@Query('order') order: 'asc' | 'desc' = 'desc', @Req() req: any) {
-    if (req.user.role !== 'instructor') {
-      throw new UnauthorizedException('Only instructors can order courses');
+  @Get('order')
+  async getCoursesOrderedByDate(
+    @Query('order') order: 'asc' | 'desc' = 'asc', // Default to ascending order
+  ): Promise<Course[]> {
+    if (!['asc', 'desc'].includes(order)) {
+      throw new BadRequestException('Invalid order parameter. Use "asc" or "desc".');
     }
     return this.courseService.getCoursesOrderedByDate(order);
   }
+
 
   
 }

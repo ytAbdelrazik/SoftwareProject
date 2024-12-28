@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type QuizDocument = Quiz & Document;
 
-@Schema({ timestamps: { createdAt: 'createdAt' } })
+@Schema()
 export class Quiz {
   @Prop({ required: true, unique: true })
   quizId: string;
@@ -12,10 +12,25 @@ export class Quiz {
   moduleId: string;
 
   @Prop({
-    type: [{ question: String, options: [String], answer: String }],
+    type: [{ question: String, options: [String], answer: String, difficulty: String }],
     required: true,
   })
-  questions: { question: string; options: string[]; answer: string }[];
+  questions: {
+    question: string;
+    options: string[];
+    answer: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+  }[];
+
+  @Prop({ required: true })
+  questionType: 'MCQ' | 'TF' | 'both';
+
+  @Prop({ required: true })
+  difficulty: 'easy' | 'medium' | 'hard' | 'mixed';
+
+  @Prop({ default: false })
+  isAttempted: boolean; // Marks if the quiz has been taken by a student
 }
 
 export const QuizSchema = SchemaFactory.createForClass(Quiz);
+

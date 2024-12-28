@@ -1,35 +1,59 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { InteractiveModulesService } from './quizzes.service';
-import { Quiz } from './quizzes.schema';
-import { Response } from './responses.schema';
+import { Controller, Post, Body, Param, UseGuards, Get, Patch, BadRequestException, Delete, Req } from '@nestjs/common';
+import { QuizzesService } from './quizzes.service';
+import { CreateQuizDto } from './dtos/create-quiz.dto';
+import { RolesGuard } from '../user-managment/roles.guard';
+import { Roles } from '../user-managment/roles.decorator';
 
-@Controller('interactive-modules')
-export class InteractiveModulesController {
-  constructor(
-    private readonly interactiveModulesService: InteractiveModulesService,
-  ) {}
+@Controller('quizzes')
+@UseGuards(RolesGuard)
+export class QuizzesController {
+  constructor(private readonly quizzesService: QuizzesService) {}
 
-  // Endpoint to create a new quiz
-  @Post('quizzes')
-  async createQuiz(@Body() quiz: Quiz): Promise<Quiz> {
-    return this.interactiveModulesService.createQuiz(quiz);
+  /**
+   * Generate a randomized quiz.
+   */
+  @Post(':moduleId/generate')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Only instructors can generate quizzes
+  async generateQuiz(
+    @Param('moduleId') moduleId: string,
+    @Body('numberOfQuestions') numberOfQuestions: number,
+    @Body('questionTypes') questionTypes: string[],
+  ) {
+    if (!numberOfQuestions || !questionTypes) {
+      throw new BadRequestException('Number of questions and question types are required');
+    }
+
+    return this.quizzesService.generateRandomizedQuiz(moduleId, numberOfQuestions, questionTypes);
   }
 
-  // Endpoint to get all quizzes
-  @Get('quizzes')
-  async getQuizzes(): Promise<Quiz[]> {
-    return this.interactiveModulesService.getQuizzes();
+  /**
+   * Get a quiz by module ID.
+   */
+  @Get(':moduleId')
+  @Roles('student')
+  async getQuizByModule(@Param('moduleId') moduleId: string) {
+    return this.quizzesService.getQuizByModule(moduleId);
   }
 
-  // Endpoint to submit a response
-  @Post('responses')
-  async submitResponse(@Body() response: Response): Promise<Response> {
-    return this.interactiveModulesService.submitResponse(response);
+  /**
+   * Update a quiz.
+   */
+  @Patch(':quizId')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Only instructors can update quizzes
+  async updateQuiz(@Param('quizId') quizId: string, @Body() updatedData: Partial<CreateQuizDto>) {
+    return this.quizzesService.updateQuiz(quizId, updatedData);
   }
 
-  // Endpoint to get responses by quiz ID
-  @Get('responses/:quizId')
-  async getResponses(@Param('quizId') quizId: string): Promise<Response[]> {
-    return this.interactiveModulesService.getResponses(quizId);
+  @Delete(':quizId')
+  @Roles('instructor') // Only instructors can delete quizzes
+  async deleteQuiz(@Param('quizId') quizId: string) {
+    return this.quizzesService.deleteQuiz(quizId);
   }
+
+
 }
+
+
+
