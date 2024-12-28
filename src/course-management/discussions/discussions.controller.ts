@@ -1,18 +1,18 @@
-import { Controller, Get, Post, Delete, Param, Body, Request } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Request } from '@nestjs/common';
 import { DiscussionsService } from './discussions.service';
 
-@Controller('courses/:id/forums')
+@Controller('courses/:courseId/forums')
 export class DiscussionsController {
   constructor(private readonly discussionsService: DiscussionsService) {}
 
   @Get()
-  async getDiscussions(@Param('id') courseId: string) {
+  async getDiscussions(@Param('courseId') courseId: string) {
     return this.discussionsService.getDiscussionsByCourse(courseId);
   }
 
   @Post()
   async createDiscussion(
-    @Param('id') courseId: string,
+    @Param('courseId') courseId: string,
     @Body('content') content: string,
     @Request() req: any,
   ) {
@@ -21,10 +21,19 @@ export class DiscussionsController {
     return this.discussionsService.createDiscussion(courseId, userId, role, content);
   }
 
-  @Delete(':forumId')
-  async deleteDiscussion(@Param('forumId') forumId: string, @Request() req: any) {
+  @Get(':forumId/comments')
+  async getComments(@Param('forumId') forumId: string) {
+    return this.discussionsService.getCommentsByForum(forumId);
+  }
+
+  @Post(':forumId/comments')
+  async createComment(
+    @Param('forumId') forumId: string,
+    @Body('content') content: string,
+    @Request() req: any,
+  ) {
     const userId = req.user.userId;
     const role = req.user.role;
-    return this.discussionsService.deleteDiscussion(forumId, userId, role);
+    return this.discussionsService.createComment(forumId, userId, role, content);
   }
 }
