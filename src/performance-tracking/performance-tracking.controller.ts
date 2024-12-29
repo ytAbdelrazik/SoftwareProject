@@ -131,6 +131,8 @@ export class PerformanceTrackingController {
     return this.service.getCourseAnalytics(courseId);
   }
 @Get(':userId/:courseId/export')
+  
+  @Roles('instructor')
 async exportData(
   @Param('courseId') courseId: string,
   @Param('userId') userId: string, 
