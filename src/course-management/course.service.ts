@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { forwardRef } from '@nestjs/common';
@@ -13,6 +13,8 @@ import { Inject } from '@nestjs/common';
 @Injectable()
 export class CourseService {
   constructor(
+
+ 
   @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
   @InjectModel('Student') private studentModel: Model<StudentDocument>,
   @InjectModel('Instructor') private instructorModel: Model<Instructor>, 
@@ -43,10 +45,12 @@ async createCourse(createCourseDto: CreateCourseDto, instructorId: string): Prom
     return newCourse; // Return the created course.
   } catch (error) {
     throw new Error(`Error creating course: ${error.message}`);
+
   }
 }
 
-//
+
+
  
 
 async updateINS(courseId: string, instructorId: string): Promise<void> {
@@ -99,12 +103,13 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
 
 
 
+
   async getAllCourses(): Promise<Course[]> {
     // Query the database to fetch all courses.
     return this.courseModel.find().exec();
   }
 
- 
+
   async updateCourse(courseId: string, updateCourseDto: UpdateCourseDto): Promise<Course> {
     // Find the course in the database by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -131,7 +136,7 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.save();
   }
 
- 
+
   async revertToVersion(courseId: string, version: string): Promise<Course> {
     try {
       // Find the course by its unique courseId
@@ -139,22 +144,22 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       if (!course) {
         throw new NotFoundException(`Course with ID ${courseId} not found.`);
       }
-  
+
       // Find the specific version in the course's versions array
       const versionData = course.versions.find((v) => v.version === version);
       if (!versionData) {
         throw new NotFoundException(`Version ${version} not found for course ${courseId}.`);
       }
-  
+
       console.log('Reverting to version data:', versionData);
-  
+
       // Clone the content of the selected version and exclude the versions field
       const restoredContent = { ...versionData.content };
       delete restoredContent.versions;
-  
+
       // Apply the restored content to the course without creating a new version
       Object.assign(course, restoredContent);
-  
+
       // Save the updated course document to the database
       return course.save();
     } catch (error) {
@@ -162,11 +167,11 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       throw new InternalServerErrorException(`Failed to revert course version: ${error.message}`);
     }
   }
-  
-  
-  
 
- 
+
+
+
+
   async getVersions(courseId: string): Promise<Array<{ version: string; updatedAt: Date }>> {
     // Find the course by its unique courseId.
     const course = await this.courseModel.findOne({ courseId });
@@ -179,55 +184,88 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.versions.map(({ version, updatedAt }) => ({ version, updatedAt }));
   }
 
- 
-  
+
+
   // Add a multimedia resource to a course
   async addMultimedia(courseId: string, multimediaDto: AddMultimediaDto): Promise<Course> {
     const course = await this.courseModel.findOne({ courseId });
     if (!course) throw new NotFoundException('Course not found');
-  
+
     // Ensure multimedia field is initialized as an array
     if (!Array.isArray(course.multimedia)) {
       course.multimedia = [];
     }
-  
+
     // Check if multimedia with the same URL already exists
     const exists = course.multimedia.some((media) => media.url === multimediaDto.url);
     if (exists) throw new Error('Multimedia resource with this URL already exists.');
-  
+
     // Add the multimedia resource with a default uploadedAt value
     const multimediaWithUploadedAt = {
       ...multimediaDto,
       uploadedAt: multimediaDto.uploadedAt || new Date(), // Assign a default date if not provided
     };
-  
+
     course.multimedia.push(multimediaWithUploadedAt);
     return course.save();
   }
-  
+
+
+  async getStudentEnrolledCourses(studentId: string): Promise<any[]> {
+    const student = await this.studentModel.findOne({ userId: studentId }).exec();
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${studentId} not found`);
+    }
+
+    // Debug enrolled courses
+    console.log('Enrolled Courses:', student.enrolledCourses);
+
+    // Fetch all courses the student is enrolled in
+    const enrolledCourses = await this.courseModel
+      .find({
+        courseId: { $in: student.enrolledCourses }, // Match courses based on the student's enrolled courses
+      })
+      .exec();
+
+    console.log('Fetched Enrolled Courses:', enrolledCourses);
+
+    return enrolledCourses;
+  }
+
+
   async getCourseById(courseId: string): Promise<Course> {
     try {
-      // Fetch the course by its ID
+      // Query the database for the course with the given courseId
+      const course = await this.courseModel.findOne({ courseId }).exec();
 
-      const course = await this.courseModel.findOne({ courseId });
-      console.log(course.courseId)
-
-      // If course is not found, throw an error
+      // If no course is found, throw a NotFoundException
       if (!course) {
-        throw new Error(`Course with ID ${courseId} not found`);
+        throw new NotFoundException(`Course with ID ${courseId} not found`);
       }
 
-      return course;
+      return course; // Return the found course
     } catch (error) {
-      throw new Error(`Error retrieving course: ${error.message}`);
+      // Handle unexpected errors and log for debugging
+      console.error('Error retrieving course:', error.message);
+
+      if (error instanceof NotFoundException) {
+        throw error; // Rethrow if it's a NotFoundException
+      }
+
+      throw new InternalServerErrorException('Error retrieving course');
     }
   }
+
+
+
+  
 
   async courseExists(courseId: string): Promise<boolean> {
     try {
       // Try to find the course by its ID
       const course = await this.courseModel.findOne({ courseId });
-  
+
       // Return true if course exists, false otherwise
       return course !== null;
     } catch (error) {
@@ -236,9 +274,7 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
       return false; // Return false if there was an error
     }
   }
-  
-  
-  
+
 
   // Remove a multimedia resource from a course
   async removeMultimedia(courseId: string, multimediaId: string): Promise<Course> {
@@ -257,50 +293,143 @@ async updateINS(courseId: string, instructorId: string): Promise<void> {
     return course.multimedia;
   }
 
-   
 
-async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
-  return this.courseModel
-    .find({
-      $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { category: { $regex: query, $options: 'i' } },
-        { createdBy: { $regex: query, $options: 'i' } },
-      ],
-    })
-    .limit(limit)
-    .skip(skip)
-    .exec();
+
+  async searchCourses(query: string, limit = 10, skip = 0): Promise<Course[]> {
+    return this.courseModel
+      .find({
+        $or: [
+          { title: { $regex: query, $options: 'i' } },
+          { category: { $regex: query, $options: 'i' } },
+          { createdBy: { $regex: query, $options: 'i' } },
+        ],
+      })
+      .limit(limit)
+      .skip(skip)
+      .exec();
+  }
+
+
+
+
+  /**
+   * Fetch all courses a student is enrolled in.
+   * @param userId - The student userId.
+   * @returns List of courses the student is enrolled in.
+   */
+  async getAllEnrolledCourses(userId: string): Promise<any[]> {
+    const student = await this.studentModel.findOne({ userId }).exec();
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${userId} not found`);
+    }
+
+    // Fetch all courses the student is enrolled in
+    const enrolledCourses = await this.courseModel
+      .find({
+        courseId: { $in: student.enrolledCourses }, // Match courses based on enrolled IDs
+      })
+      .exec();
+
+    return enrolledCourses;
+  }
+
+
+  async searchInstructors(query: string, limit = 10, skip = 0): Promise<any[]> {
+    return this.instructorModel
+      .find({
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { email: { $regex: query, $options: 'i' } },
+          { userId: { $regex: query, $options: 'i' } }, // Use userId instead of id
+        ],
+      })
+      .limit(limit)
+      .skip(skip)
+      .exec();
+  }
+
+
+  /**
+   * Get courses ordered by creation date.
+   * @param order - 'asc' or 'desc'.
+   * @returns Ordered list of courses.
+   */
+  async getCoursesOrderedByDate(order: 'asc' | 'desc'): Promise<Course[]> {
+    return this.courseModel.find().sort({ createdAt: order === 'asc' ? 1 : -1 }).exec();
+  }
+
+  /**
+   * Fetch completed courses for a student.
+   * @param studentId - The ID of the student.
+   * @returns A list of completed courses.
+   */
+  async getCompletedCourses(studentId: string): Promise<any[]> {
+    const student = await this.studentModel.findOne({ userId: studentId }).exec();
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID '${studentId}' not found.`);
+    }
+
+    // Map completed courses with additional metadata
+    const completedCourseDetails = await Promise.all(
+      student.completedCourses.map(async (completedCourse) => {
+        const course = await this.courseModel.findOne({ courseId: completedCourse.courseId }).exec();
+        return {
+          ...course.toObject(),
+          completionDate: completedCourse.completionDate,
+          score: completedCourse.score,
+        };
+      }),
+    );
+
+    return completedCourseDetails;
+  }
+
+
+  async getStudentsWhoCompletedCourse(instructorId: string, courseId: string): Promise<any[]> {
+    // Validate that the course exists and is created by the instructor
+    const course = await this.courseModel.findOne({ courseId, createdBy: instructorId }).exec();
+    if (!course) {
+      throw new NotFoundException(`Course with ID '${courseId}' not found or you are not the creator.`);
+    }
+
+    // Find all students who have completed the course
+    const students = await this.studentModel
+      .find({ 'completedCourses.courseId': courseId }, { name: 1, email: 1, 'completedCourses.$': 1 })
+      .exec();
+
+    if (!students || students.length === 0) {
+      throw new NotFoundException(`No students have completed the course with ID '${courseId}'.`);
+    }
+
+    return students.map((student) => ({
+      name: student.name,
+      email: student.email,
+      completionDate: student.completedCourses[0].completionDate,
+      score: student.completedCourses[0].score,
+    }));
+  }
+  
+  async addKeywordsToCourse(courseId: string, keywords: string[], instructorId: string): Promise<any> {
+    const course = await this.courseModel.findOne({ courseId }).exec();
+  
+    if (!course) {
+      throw new NotFoundException(`Course with ID '${courseId}' not found`);
+    }
+  
+    if (course.createdBy !== instructorId) {
+      throw new UnauthorizedException('You are not authorized to add keywords to this course');
+    }
+  
+    course.keywords = Array.from(new Set([...(course.keywords || []), ...keywords])); // Avoid duplicates
+    return await course.save();
+  }
+  
+
+
+
 }
 
 
 
-async searchStudents(query: string, limit = 10, skip = 0): Promise<any[]> {
-  return this.studentModel
-    .find({
-      $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
-        { id: { $regex: query, $options: 'i' } },
-      ],
-    })
-    .limit(limit)
-    .skip(skip)
-    .exec();
-}
-
-async searchInstructors(query: string, limit = 10, skip = 0): Promise<any[]> {
-  return this.instructorModel
-    .find({
-      $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { email: { $regex: query, $options: 'i' } },
-        { id: { $regex: query, $options: 'i' } },
-      ],
-    })
-    .limit(limit)
-    .skip(skip)
-    .exec();
-}
-
-}

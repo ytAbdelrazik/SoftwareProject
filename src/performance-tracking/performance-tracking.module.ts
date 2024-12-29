@@ -16,6 +16,7 @@ import { InstructorRating, InstructorRatingSchema } from './instructorrating.sch
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
+
   imports: [
     MongooseModule.forFeature([
       { name: Progress.name, schema: ProgressSchema },
@@ -36,3 +37,4 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [PerformanceTrackingService],
 })
 export class PerformanceTrackingModule {}
+

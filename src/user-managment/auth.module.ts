@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../user-managment/users.module'; // Import UsersModule
 import { FailedLogin, FailedLoginSchema } from './failed-login.schema';
 
+
 @Module({
   imports: [
     UsersModule, // Ensure UsersModule is imported here
