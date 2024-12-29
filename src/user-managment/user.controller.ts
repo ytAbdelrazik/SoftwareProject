@@ -7,9 +7,13 @@ import {
   Patch, 
   Param, 
   Query,
+
+  Delete, Request,
+
   UnauthorizedException,
   Req,
   NotFoundException,
+
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -146,7 +150,31 @@ export class UserController {
     return this.failedLoginModel.find().sort({ timestamp: -1 }).exec();
   }
   
+  @Patch('courses/:courseId/availability')
+  @UseGuards(RolesGuard)
+  @Roles('admin') // Ensure only admins can access this
+  async updateCourseAvailability(
+    @Param('courseId') courseId: string,
+    @Body('isAvailable') isAvailable: boolean,
+  ) {
+    return this.userService.updateCourseAvailability(courseId, isAvailable);
+  }
 
+  @Delete('users/:userId')
+  @UseGuards(RolesGuard)
+  @Roles('admin') // admin deleting other users
+  async deleteUserByAdmin(@Param('userId') userId: string) {
+    return this.userService.deleteUser(userId);
+  }
+
+  
+  @Delete('users/self')
+  @UseGuards(RolesGuard)
+  @Roles('student','instructor', 'admin') // Users with these roles can delete themselves
+  async deleteSelf(@Request() req: any) {
+    const userId = req.user.userId; // Get the userId from the request object
+    return this.userService.deleteUser(userId);
+  }
   
 
   @Patch(':userId/add-courses/student')

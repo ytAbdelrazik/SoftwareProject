@@ -14,10 +14,10 @@ export class QuickNotesService {
     const note = new this.noteModel(createNoteDto); //create
     return note.save(); //returns created note saved in the db 'note.save'
   }
+  
 
-//get a certain user's notes
-  async findByUser(userId: string): Promise<Note[]> {
-    return this.noteModel.find({ userId }).exec();
+  async findByModule(moduleId: string): Promise<Note[]> {
+    return this.noteModel.find({ moduleId }).exec();
   }
 
 //to update existinf notes
@@ -26,12 +26,11 @@ async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
     { title },
     { $set: updateNoteDto, $currentDate: { updatedAt: true } }, // update content and date it was chaanged/updates
     { new: true }
-  );
+  ); 
 
   if (!note) {
     throw new NotFoundException('Note with the specified title not found');
   }
-
   return note;
 }
 
@@ -42,4 +41,5 @@ async update(title: string, updateNoteDto: UpdateNoteDto): Promise<Note> {
       throw new NotFoundException('Note not found');
     }
   }
+
 }
