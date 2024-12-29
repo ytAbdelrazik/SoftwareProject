@@ -1,14 +1,28 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ModuleController } from './module.controller';
 import { ModuleService } from './module.service';
-import { Module as CourseModule, ModuleSchema } from './module.schema';
+import { ModuleController } from './module.controller';
+import { ModuleSchema } from './module.schema';
+import { CourseSchema } from '../course-management/course.schema';
+import { InstructorSchema } from './instructor.schema';
+import { RolesGuard } from '../user-managment/roles.guard';
+import { JwtModule } from '@nestjs/jwt';
+
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: CourseModule.name, schema: ModuleSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Module', schema: ModuleSchema },
+      { name: 'Course', schema: CourseSchema },
+      { name: 'Instructor', schema: InstructorSchema }, // Ensure this is included
+    ]),
+    JwtModule.register({
+      secret: 'ahmed', // Replace with your secret key
+      signOptions: { expiresIn: '1h' },
+    }),
   ],
   controllers: [ModuleController],
-  providers: [ModuleService],
+  providers: [ModuleService, RolesGuard],
+  exports: [MongooseModule,ModuleService], // Export service if needed elsewhere
 })
 export class ModuleModule {}

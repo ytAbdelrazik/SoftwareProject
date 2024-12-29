@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './user-managment/users.module';
-import { ResponseModule } from './interactive-modules/responses.module';
+import { ResponsesModule } from './interactive-modules/responses.module';
 import { InteractionModule } from './recommedation-engine/user-interaction.module';
 import { RecommendationModule } from './recommedation-engine/recommendation.module';
 import { PerformanceTrackingModule } from './performance-tracking/performance-tracking.module';
@@ -16,8 +16,16 @@ import { RolesGuard } from './user-managment/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { ChatModule } from './chat/chat.module';
 import { CourseSchema } from './course-management/course.schema'
-import { ChatGateway } from './chat/chat.gateway';
+
+
 import { QuickNotesModule } from './quick-notes/notes.module';
+import { BackupModule } from './backup/backup.module';
+import { QuestionBankModule } from './interactive-modules/question-bank.module';
+
+
+import { QuickNotesModule } from './quick-notes/notes.module';
+import { ChatService } from './chat/chat.service';
+
 @Module({
   imports: [
     // Database connection
@@ -25,7 +33,6 @@ import { QuickNotesModule } from './quick-notes/notes.module';
 
     // Feature modules
     UsersModule,
-    ResponseModule,
     InteractionModule,
     RecommendationModule,
     PerformanceTrackingModule,
@@ -35,6 +42,11 @@ import { QuickNotesModule } from './quick-notes/notes.module';
     AuthModule,
     ChatModule,
     QuickNotesModule, // Ensure this is correctly imported
+
+    BackupModule,
+    QuestionBankModule,
+    ResponsesModule,
+
 
     // Schemas
     MongooseModule.forFeature([
@@ -54,6 +66,7 @@ import { QuickNotesModule } from './quick-notes/notes.module';
     RolesGuard,
     Reflector,
     
+
   ],
 })
 export class AppModule {}

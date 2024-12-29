@@ -14,6 +14,9 @@ import { Admin } from './admin.schema';  // Adjust the import path for the Admin
 import { CourseService } from 'src/course-management/course.service';
 @Injectable()
 export class UserService {
+  getAllEnrolledCourses(userId: any) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectModel("User") private userModel: Model<User>,
     @InjectModel('Student') private readonly studentModel: Model<Student>,
@@ -166,6 +169,7 @@ export class UserService {
     return instructor.createdCourses;
   }
 
+
   async addCoursesToStudent(userId: string, courseIds: string[]): Promise<any> {
     // Fetch the student using the userId
     const student = await this.studentModel.findOne({ userId }).exec();
@@ -179,11 +183,11 @@ export class UserService {
       courseId: { $in: courseIds },  // Find courses by their courseIds (strings)
     }).exec();
 
+
     // Ensure that all courseIds exist in the database
     if (courses.length !== courseIds.length) {
       throw new NotFoundException('One or more courses not found');
     }
-
     // Avoid duplicates: Use course _id, which are ObjectIds
     const currentCourseIds = student.enrolledCourses.map(course => course.toString()); // Convert enrolled course ObjectIds to string
     const newCourseIds = courseIds.filter(courseId => !currentCourseIds.includes(courseId));  // Avoid adding duplicates
@@ -200,10 +204,31 @@ export class UserService {
     return student.save();
   }
 
+
   
-  async findByEmail(email: string): Promise<User> {
-    return this.userModel.findOne({ email }); // Return the query itself, not the result
+  async findByEmail(email: string): Promise<any | null> { //fix when studentModel at first not student will get an error
+    const student = await this.studentModel.findOne({ email }).exec();
+    if (student) return student;
+  
+    const instructor = await this.instructorModel.findOne({ email }).exec();
+    if (instructor) return instructor;
+  
+    const admin = await this.adminModel.findOne({ email }).exec();
+    return admin;
   }
+
+  
+  async searchStudentsByName(name: string, limit: number, offset: number): Promise<Student[]> {
+    return this.studentModel
+      .find({
+        name: { $regex: name, $options: 'i' }, // Case-insensitive search
+      })
+      .limit(limit)
+      .skip(offset)
+      .exec();
+  }
+
+
 
 
 

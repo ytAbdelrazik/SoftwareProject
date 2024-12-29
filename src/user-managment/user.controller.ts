@@ -7,7 +7,13 @@ import {
   Patch, 
   Param, 
   Query,
-  Delete, Request
+
+  Delete, Request,
+
+  UnauthorizedException,
+  Req,
+  NotFoundException,
+
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -19,6 +25,9 @@ import { Roles } from './roles.decorator';
 import { Course } from 'src/course-management/course.schema';
 import { Instructor } from 'src/course-management/instructor.schema';
 import { Student } from 'src/course-management/student.schema';
+
+import * as bcrypt from 'bcrypt';
+
 @Controller('users')
 export class UserController {
   constructor(
@@ -33,6 +42,7 @@ export class UserController {
   async getUserById(@Query('userId') userId: string) {
       const user = await this.userService.getUserById(userId);
       return user;
+
   }
   
 
@@ -44,14 +54,29 @@ export class UserController {
       console.error('Error in createUser:', error.message);
       throw error;
     }
-  }
 
-  @Patch(':userId')
-  async updateUser(
-    @Param('userId') userId: string,
-    @Query('role') role: string,
-    @Body() updateData: any,
-  ) {
+  }
+  
+
+
+
+  @Patch('profile')
+  @UseGuards(RolesGuard) // Ensure the user is authenticated
+  async updateProfile(@Req() req, @Body() updateData: any) {
+    const userId = req.user.userId; // Extract userId from the logged-in user's JWT
+    const role = req.user.role; // Extract role from the logged-in user's JWT
+  
+    // Only allow instructors and students to update their profiles
+    if (role !== 'student' && role !== 'instructor') {
+      throw new UnauthorizedException('Only students and instructors can update their profiles');
+    }
+  
+    // If the password field is included, hash the new password
+    if (updateData.password) {
+      updateData.passwordHash = await bcrypt.hash(updateData.password, 10); // Hash the new password
+      delete updateData.password; // Remove the plain password from the updateData object
+    }
+  
     return this.userService.updateUser(userId, role, updateData);
   }
 
@@ -69,6 +94,7 @@ export class UserController {
     return this.userService.getAllByRole('instructor');
   }
 
+
   @Get(':userId/enrolled-courses')
   async getEnrolledCourses(@Param('userId') userId: string) {
     const user = await this.userService.getUserById(userId);
@@ -80,6 +106,7 @@ export class UserController {
 
     throw new Error('User is not a student');
   }
+
 
   @Get(':userId/created-courses')
   async getCreatedCourses(@Param('userId') userId: string) {
@@ -93,17 +120,29 @@ export class UserController {
     throw new Error('User is not an instructor');
   }
 
-  @Patch(':userId/add-courses/student')
-  async addCoursesToStudent(
-    @Param('userId') userId: string,
-    @Body('courseIds') courseIds: string[],
+
+  @Get('search')
+  @UseGuards(RolesGuard)
+  @Roles('instructor') // Restrict to instructors
+  async searchStudents(
+    @Query('name') name: string,
+    @Query('limit') limit: number = 10,
+    @Query('offset') offset: number = 0,
   ) {
-    return this.userService.addCoursesToStudent(userId, courseIds);
+    if (!name) {
+      throw new NotFoundException('Name parameter is required for search');
+    }
+    const students = await this.userService.searchStudentsByName(name, limit, offset);
+    if (!students || students.length === 0) {
+      throw new NotFoundException(`No students found for name: "${name}"`);
+    }
+    return students;
   }
 
 
-   
 
+
+  
   @Get('failed-logins') 
   @UseGuards(RolesGuard)
   @Roles('admin')
@@ -137,4 +176,16 @@ export class UserController {
     return this.userService.deleteUser(userId);
   }
   
+
+  @Patch(':userId/add-courses/student')
+  async addCoursesToStudent(
+    @Param('userId') userId: string,
+    @Body('courseIds') courseIds: string[],
+  ) {
+    return this.userService.addCoursesToStudent(userId, courseIds);
+  }
+
+
+   
+
 }
