@@ -431,7 +431,8 @@ async getAverageRatingForInstructor(instructorId: string): Promise<number> {
         const csvPath = path.join(customDirectory, fileName);
   
         console.log('CSV Path:', csvPath);
-  
+        data.CourseId = courseId;
+
         // Create CSV writer instance
         const csv = csvWriter.createObjectCsvWriter({
           path: csvPath,
