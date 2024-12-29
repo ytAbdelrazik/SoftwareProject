@@ -21,7 +21,9 @@ import { Roles } from './roles.decorator';
 import { Course } from 'src/course-management/course.schema';
 import { Instructor } from 'src/course-management/instructor.schema';
 import { Student } from 'src/course-management/student.schema';
+
 import * as bcrypt from 'bcrypt';
+
 @Controller('users')
 export class UserController {
   constructor(
@@ -36,6 +38,19 @@ export class UserController {
   async getUserById(@Query('userId') userId: string) {
       const user = await this.userService.getUserById(userId);
       return user;
+
+  }
+  
+
+  @Post()
+  async createUser(@Body() createUserDto: CreateUserdto): Promise<any> {
+    try {
+      return await this.userService.createUser(createUserDto);
+    } catch (error) {
+      console.error('Error in createUser:', error.message);
+      throw error;
+    }
+
   }
   
 
@@ -76,6 +91,18 @@ export class UserController {
   }
 
 
+  @Get(':userId/enrolled-courses')
+  async getEnrolledCourses(@Param('userId') userId: string) {
+    const user = await this.userService.getUserById(userId);
+    
+    // Check if the user is a Student and return enrolledCourses
+    if (user instanceof Student) {
+      return user.enrolledCourses; // Ensure this is an array of Course objects
+    }
+
+    throw new Error('User is not a student');
+  }
+
 
   @Get(':userId/created-courses')
   async getCreatedCourses(@Param('userId') userId: string) {
@@ -88,6 +115,7 @@ export class UserController {
 
     throw new Error('User is not an instructor');
   }
+
 
   @Get('search')
   @UseGuards(RolesGuard)
@@ -120,4 +148,16 @@ export class UserController {
   
 
   
+
+  @Patch(':userId/add-courses/student')
+  async addCoursesToStudent(
+    @Param('userId') userId: string,
+    @Body('courseIds') courseIds: string[],
+  ) {
+    return this.userService.addCoursesToStudent(userId, courseIds);
+  }
+
+
+   
+
 }

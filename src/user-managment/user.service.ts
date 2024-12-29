@@ -170,9 +170,43 @@ export class UserService {
   }
 
 
+  async addCoursesToStudent(userId: string, courseIds: string[]): Promise<any> {
+    // Fetch the student using the userId
+    const student = await this.studentModel.findOne({ userId }).exec();
+
+    if (!student) {
+      throw new NotFoundException(`Student with ID ${userId} not found`);
+    }
+
+    // Fetch the course documents by their courseId
+    const courses = await this.courseModel.find({
+      courseId: { $in: courseIds },  // Find courses by their courseIds (strings)
+    }).exec();
+
+
+    // Ensure that all courseIds exist in the database
+    if (courses.length !== courseIds.length) {
+      throw new NotFoundException('One or more courses not found');
+    }
+    // Avoid duplicates: Use course _id, which are ObjectIds
+    const currentCourseIds = student.enrolledCourses.map(course => course.toString()); // Convert enrolled course ObjectIds to string
+    const newCourseIds = courseIds.filter(courseId => !currentCourseIds.includes(courseId));  // Avoid adding duplicates
+
+    // Fetch the actual courses to add by their courseIds (assuming courseIds are strings in the input)
+    const newCourses = await this.courseModel.find({
+      courseId: { $in: newCourseIds },
+    }).exec();
+
+    // Add the new courses to the student's enrolled courses
+    student.enrolledCourses = [...student.enrolledCourses, ...newCourses];
+
+    // Save the updated student record
+    return student.save();
+  }
+
 
   
-  async findByEmail(email: string): Promise<any | null> {
+  async findByEmail(email: string): Promise<any | null> { //fix when studentModel at first not student will get an error
     const student = await this.studentModel.findOne({ email }).exec();
     if (student) return student;
   
@@ -193,6 +227,7 @@ export class UserService {
       .skip(offset)
       .exec();
   }
+
 
 
 

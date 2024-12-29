@@ -13,89 +13,94 @@ import { Inject } from '@nestjs/common';
 @Injectable()
 export class CourseService {
   constructor(
-    @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-    @InjectModel('Student') private studentModel: Model<StudentDocument>,
-    @InjectModel('Instructor') private instructorModel: Model<Instructor>,
-    @Inject(forwardRef(() => UserService)) // Use forwardRef to resolve circular dependency
-    private readonly userService: UserService,
-  ) { }
 
-  async createCourse(createCourseDto: CreateCourseDto, instructorId: string): Promise<Course> {
-    try {
-      // Create a new course document using the provided data.
-      const newCourse = await this.courseModel.create(createCourseDto);
+ 
+  @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
+  @InjectModel('Student') private studentModel: Model<StudentDocument>,
+  @InjectModel('Instructor') private instructorModel: Model<Instructor>, 
+  @Inject(forwardRef(() => UserService)) // Use forwardRef to resolve circular dependency
+  private readonly userService: UserService,
+){}
 
-      // Fetch the instructor by ID and await the result
-      const instructor = await this.userService.getUserById(instructorId);
+async createCourse(createCourseDto: CreateCourseDto, instructorId: string): Promise<Course> {
+  try {
+    // Create a new course document using the provided data.
+    const newCourse = await this.courseModel.create(createCourseDto);
 
-      // Check if the user is an instructor
-      if (instructor.role === 'instructor') {
-        // Add the new course to the instructor's 'createdCourses' array
-        const instructorTyped = instructor as Instructor;
-        instructorTyped.createdCourses = [...instructorTyped.createdCourses, newCourse];
+    // Fetch the instructor by ID and await the result
+    const instructor = await this.userService.getUserById(instructorId);
 
-        // Save the updated instructor
-
-      } else {
-        throw new Error('User is not an instructor');
-      }
-
-      return newCourse; // Return the created course.
-    } catch (error) {
-      throw new Error(`Error creating course: ${error.message}`);
-    }
-  }
-
-  //
-
-
-  async updateINS(courseId: string, instructorId: string): Promise<void> {
-    try {
-
-      const courseExists = await this.courseModel.exists({ courseId });
-      if (!courseExists) {
-        throw new Error(`Course with ID ${courseId} does not exist`);
-      }
-      // Fetch the course by ID
-      const course = await this.getCourseById(courseId);
-      if (!course) {
-        throw new Error(`Course with ID ${courseId} not found`);
-      }
-
-      // Fetch the instructor by ID
-      const instructor = await this.userService.getUserById(instructorId);
-      if (!instructor) {
-        throw new Error(`Instructor with ID ${instructorId} not found`);
-      }
-
-      // Check if the user is an instructor
-      if (instructor.role !== 'instructor') {
-        throw new Error(`User with ID ${instructorId} is not an instructor.`);
-      }
-
+    // Check if the user is an instructor
+    if (instructor.role === 'instructor') {
+      // Add the new course to the instructor's 'createdCourses' array
       const instructorTyped = instructor as Instructor;
+      instructorTyped.createdCourses = [...instructorTyped.createdCourses, newCourse];
 
-      // Check if the course is already in the instructor's `createdCourses` array
-      const isCourseAlreadyAdded = instructorTyped.createdCourses.some(
-        (createdCourse) => createdCourse.courseId === courseId,
+      // Save the updated instructor
+
+    } else {
+      throw new Error('User is not an instructor');
+    }
+
+    return newCourse; // Return the created course.
+  } catch (error) {
+    throw new Error(`Error creating course: ${error.message}`);
+
+  }
+}
+
+
+
+ 
+
+async updateINS(courseId: string, instructorId: string): Promise<void> {
+  try {
+
+    const courseExists = await this.courseModel.exists({ courseId });
+    if (!courseExists) {
+      throw new Error(`Course with ID ${courseId} does not exist`);
+    }
+    // Fetch the course by ID
+    const course = await this.getCourseById(courseId);
+    if (!course) {
+      throw new Error(`Course with ID ${courseId} not found`);
+    }
+
+    // Fetch the instructor by ID
+    const instructor = await this.userService.getUserById(instructorId);
+    if (!instructor) {
+      throw new Error(`Instructor with ID ${instructorId} not found`);
+    }
+
+    // Check if the user is an instructor
+    if (instructor.role !== 'instructor') {
+      throw new Error(`User with ID ${instructorId} is not an instructor.`);
+    }
+
+    const instructorTyped = instructor as Instructor;
+
+    // Check if the course is already in the instructor's `createdCourses` array
+    const isCourseAlreadyAdded = instructorTyped.createdCourses.some(
+      (createdCourse) => createdCourse.courseId === courseId,
+    );
+
+    if (!isCourseAlreadyAdded) {
+      // Update the `createdCourses` array to include the course
+      await this.instructorModel.updateOne(
+        { userId: instructorId }, // Match by instructor ID
+        { $push: { createdCourses: course } }, // Push the full course object to the array
       );
 
-      if (!isCourseAlreadyAdded) {
-        // Update the `createdCourses` array to include the course
-        await this.instructorModel.updateOne(
-          { userId: instructorId }, // Match by instructor ID
-          { $push: { createdCourses: course } }, // Push the full course object to the array
-        );
-
-        console.log(`Course with ID ${courseId} successfully added to instructor's createdCourses.`);
-      } else {
-        console.log(`Course with ID ${courseId} is already in instructor's createdCourses.`);
-      }
-    } catch (error) {
-      console.error('Error in updateINS:', error.message);
-      throw error;
+      console.log(`Course with ID ${courseId} successfully added to instructor's createdCourses.`);
+    } else {
+      console.log(`Course with ID ${courseId} is already in instructor's createdCourses.`);
     }
+  } catch (error) {
+    console.error('Error in updateINS:', error.message);
+    throw error;
   }
+}
+
 
 
 
@@ -112,6 +117,9 @@ export class CourseService {
       // If the course does not exist, throw an error.
       throw new NotFoundException(`Course with ID ${courseId} not found.`);
     }
+
+
+
 
     // Create a new version snapshot of the current course state.
     const newVersion = {
@@ -202,6 +210,7 @@ export class CourseService {
     return course.save();
   }
 
+
   async getStudentEnrolledCourses(studentId: string): Promise<any[]> {
     const student = await this.studentModel.findOne({ userId: studentId }).exec();
 
@@ -250,6 +259,8 @@ export class CourseService {
 
 
 
+  
+
   async courseExists(courseId: string): Promise<boolean> {
     try {
       // Try to find the course by its ID
@@ -263,8 +274,6 @@ export class CourseService {
       return false; // Return false if there was an error
     }
   }
-
-
 
 
   // Remove a multimedia resource from a course

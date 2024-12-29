@@ -79,6 +79,7 @@ export class AuthService {
   }
 
 
+
   async validateUser(email: string, password: string, ipAddress: string, userAgent: string): Promise<any> {
     const user = await this.userService.findByEmail(email); // Check if the user exists
     if (!user) {
@@ -96,6 +97,8 @@ export class AuthService {
   }
   
   
+
+
 
 
   

@@ -16,10 +16,16 @@ import { RolesGuard } from './user-managment/roles.guard';
 import { Reflector } from '@nestjs/core';
 import { ChatModule } from './chat/chat.module';
 import { CourseSchema } from './course-management/course.schema'
-import { ChatGateway } from './chat/chat.gateway';
+
+
 import { QuickNotesModule } from './quick-notes/notes.module';
 import { BackupModule } from './backup/backup.module';
 import { QuestionBankModule } from './interactive-modules/question-bank.module';
+
+
+import { QuickNotesModule } from './quick-notes/notes.module';
+import { ChatService } from './chat/chat.service';
+
 @Module({
   imports: [
     // Database connection
@@ -36,9 +42,11 @@ import { QuestionBankModule } from './interactive-modules/question-bank.module';
     AuthModule,
     ChatModule,
     QuickNotesModule, // Ensure this is correctly imported
+
     BackupModule,
     QuestionBankModule,
     ResponsesModule,
+
 
     // Schemas
     MongooseModule.forFeature([
@@ -58,6 +66,7 @@ import { QuestionBankModule } from './interactive-modules/question-bank.module';
     RolesGuard,
     Reflector,
     
+
   ],
 })
 export class AppModule {}
