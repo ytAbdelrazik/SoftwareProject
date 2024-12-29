@@ -7,7 +7,7 @@ import { StudentSchema } from './student.schema'; // Import StudentSchema
 import { InstructorSchema } from './instructor.schema'; // Import InstructorSchema
 import { UsersModule } from 'src/user-managment/users.module';
 import { UserService } from 'src/user-managment/user.service';
-
+import { Discussion,DiscussionSchema } from './discussions/discussions.schema';
 @Module({
   imports: [
     
@@ -15,7 +15,9 @@ import { UserService } from 'src/user-managment/user.service';
       { name: 'Course', schema: CourseSchema },
       
       { name: 'Student', schema: StudentSchema, collection: 'students' }, // Register Student schema
-      { name: 'Instructor', schema: InstructorSchema, collection: 'instructors' },
+      { name: 'Instructor', schema: InstructorSchema, collection: 'instructors'},
+      {name:'Discussion',schema: DiscussionSchema,
+       },
        // Register Instructor schema
     ]),
     forwardRef(() => UsersModule)

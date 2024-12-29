@@ -22,6 +22,10 @@ export class Response {
 
   @Prop({ required: true, default: false })
   isCompleted: boolean; // Indicates whether the quiz is fully attempted
+  
+  @Prop({ required: true })
+  submittedAt: Date;
+
 }
 
 export const ResponseSchema = SchemaFactory.createForClass(Response);

@@ -49,22 +49,8 @@ export class CourseController {
   }
 
   
-    // Check if the instructor ID is valid
-    const isadmin = await  this.UserService.getUserById(insID);
- 
-    if (!(isadmin.role==='instructor')) {
-      throw new NotFoundException('Invalid instructor ID'); // Throw error if the ID is invalid
-    }
-    const isCourseExist =await this.courseService.courseExists(createCourseDto.courseId);
-    if (isCourseExist) {
-      throw new NotFoundException('Course ID already exists'); // Prevent creating duplicate course IDs
-    }
-
-
-    const course=this.courseService.createCourse(createCourseDto, insID); 
-    await this.updateInstructorCourses((await course).courseId,insID);
-    return;
-  }
+  
+    
     
 
 
@@ -146,13 +132,6 @@ export class CourseController {
     return this.courseService.searchCourses(query, limit, skip);
   }
 
-  /**
-   * Get course by ID
-   */
-  @Get('id/:courseId')
-  async getCourseById(@Param('courseId') courseId: string): Promise<Course> {
-    return this.courseService.getCourseById(courseId);
-  }
   
   /**
    * Get all enrolled courses for the logged-in student.
@@ -186,18 +165,7 @@ export class CourseController {
     }
   }
 
-  @Patch(':courseId/instructor/:instructorId')
-  async updateInstructorCourses(
-    @Param('courseId') courseId: string,
-    @Param('instructorId') instructorId: string,
-  ): Promise<void> {
-    try {
-      
-      await this.courseService.updateINS(courseId, instructorId);
-    } catch (error) {
-      throw new Error(`Error updating instructor's courses: ${error.message}`);
-    }
-  }
+ 
   
   @Get('instructors/search')
   @UseGuards(RolesGuard)

@@ -23,6 +23,6 @@ import { Reflector } from '@nestjs/core';
   ],
   controllers: [ResponsesController],
   providers: [ResponsesService, RolesGuard, Reflector],
-  exports: [ResponsesService], // Export the service for reuse in other modules
+  exports: [ResponsesService,MongooseModule], // Export the service for reuse in other modules
 })
 export class ResponsesModule {}

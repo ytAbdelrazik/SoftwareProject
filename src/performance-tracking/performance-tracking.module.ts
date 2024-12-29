@@ -14,6 +14,8 @@ import { ResponseSchema } from 'src/interactive-modules/responses.schema';
 import { User, UserSchema } from 'src/user-managment/users.schema';
 import { InstructorRating, InstructorRatingSchema } from './instructorrating.schema';
 import { JwtModule } from '@nestjs/jwt';
+import { ResponsesService } from 'src/interactive-modules/responses.service';
+import { ResponsesModule } from 'src/interactive-modules/responses.module';
 
 @Module({
 
@@ -30,6 +32,7 @@ import { JwtModule } from '@nestjs/jwt';
       { name: InstructorRating.name, schema: InstructorRatingSchema }
     ]),
     CourseModule,
+    ResponsesModule,
     ModuleModule,
     JwtModule.register({}), // Add this line
   ],

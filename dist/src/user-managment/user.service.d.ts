@@ -1,0 +1,32 @@
+import { Model } from 'mongoose';
+import { Student } from '../course-management/student.schema';
+import { Instructor } from '../course-management/instructor.schema';
+import { User } from './users.schema';
+import { Course } from '../course-management/course.schema';
+import { Admin } from './admin.schema';
+import { CourseService } from 'src/course-management/course.service';
+export declare class UserService {
+    private userModel;
+    private readonly studentModel;
+    private readonly instructorModel;
+    private readonly adminModel;
+    private readonly courseModel;
+    private readonly CourseService;
+    getAllEnrolledCourses(userId: any): void;
+    constructor(userModel: Model<User>, studentModel: Model<Student>, instructorModel: Model<Instructor>, adminModel: Model<Admin>, courseModel: Model<Course>, CourseService: CourseService);
+    getUserById(userId: string): Promise<Student | Instructor | Admin>;
+    private getModelByRole;
+    private generateUserId;
+    createUser(userData: any): Promise<any>;
+    updateUser(userId: string, role: string, updateData: any): Promise<any>;
+    getAllByRole(role: string): Promise<any[]>;
+    getEnrolledCourses(userId: string): Promise<Course[]>;
+    getCreatedCourses(userId: string): Promise<Course[]>;
+    addCoursesToStudent(userId: string, courseIds: string[]): Promise<any>;
+    findByEmail(email: string): Promise<any | null>;
+    searchStudentsByName(name: string, limit: number, offset: number): Promise<Student[]>;
+    istheinstructorInCourse(courseId: string, instructorId: string): Promise<boolean>;
+    isStudentEnrolledInCourse(courseId: string, studentId: string): Promise<boolean>;
+    updateCourseAvailability(courseId: string, isAvailable: boolean): Promise<Course>;
+    deleteUser(userId: string): Promise<void>;
+}

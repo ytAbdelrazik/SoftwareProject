@@ -15,7 +15,7 @@ import * as csvWriter from 'csv-writer';
 import { UpdateProgressDto } from './dtos/update-progress.dto';
 import { Progress } from './progress.schema';
 import { UserInteraction } from 'src/recommedation-engine/user-interaction.schema';
-import { Response } from 'src/interactive-modules/responses.schema';
+import { Response ,ResponseDocument} from 'src/interactive-modules/responses.schema';
 import { Course } from 'src/course-management/course.schema';
 import { Module } from 'src/course-management/module.schema';
 import { Quiz } from 'src/interactive-modules/quizzes.schema';
