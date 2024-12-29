@@ -79,23 +79,26 @@ export class AuthService {
   }
 
 
-  async validateUser(email: string, password: string, ipAddress?: string, userAgent?: string): Promise<any> {
-    const user = await this.userService.findByEmail(email); 
-    
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-      if (ipAddress && userAgent) {
-        // Log the failed login attempt if IP and user agent are provided
-        await this.logFailedAttempt(email, 'Invalid credentials', ipAddress, userAgent);
-      }
-      return null;
+
+  async validateUser(email: string, password: string, ipAddress: string, userAgent: string): Promise<any> {
+    const user = await this.userService.findByEmail(email); // Check if the user exists
+    if (!user) {
+      await this.logFailedAttempt(email, 'User not found', ipAddress, userAgent);
+      return null; // Return null if the user doesn't exist
     }
   
-    // Exclude the passwordHash field from the result
-    const { passwordHash, ...result } = user;
-    
-    return result; // Return the user object without the passwordHash field
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash); // Compare passwords
+    if (!isPasswordValid) {
+      await this.logFailedAttempt(email, 'Invalid password', ipAddress, userAgent);
+      return null; // Return null if the password is invalid
+    }
+  
+    return user; // Return the user if both email and password are correct
   }
   
+  
+
+
 
 
   
@@ -105,9 +108,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { email: user.email, role: user.role, sub: user.userId };
+    const payload = { 
+      email: user.email, 
+      role: user.role, 
+      userId: user.userId,// Add userId here
+      name: user.name
+    };
     return {
       accessToken: this.jwtService.sign(payload),
     };
   }
+
+  
 }

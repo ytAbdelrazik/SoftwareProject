@@ -1,28 +1,27 @@
-// response.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type ResponseDocument = Response & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Response {
   @Prop({ required: true })
-  responseId: string;
-
-  @Prop({ required: true })
-  userId: string;
+  studentId: string;
 
   @Prop({ required: true })
   quizId: string;
 
-  @Prop({ type: Array, required: true })
-  answers: object[];
+  @Prop({
+    type: [{ questionId: String, selectedOption: String, correct: Boolean }],
+    required: true,
+  })
+  answers: { questionId: string; selectedOption: string; correct: boolean }[];
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: 0 })
   score: number;
 
-  @Prop({ required: true })
-  submittedAt: Date;
+  @Prop({ required: true, default: false })
+  isCompleted: boolean; // Indicates whether the quiz is fully attempted
 }
 
 export const ResponseSchema = SchemaFactory.createForClass(Response);

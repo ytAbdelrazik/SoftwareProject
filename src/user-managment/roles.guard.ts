@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ROLES_KEY } from './roles.decorator';
@@ -12,21 +12,31 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiredRoles) {
-      return true;
-    }
 
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
+    const authorization = request.headers.authorization;
+    if (request.route.path === '/auth/login' ||request.route.path === '/auth/sign-up' ) {
+      return true; // Allow login without token
+    }
+    if (!authorization) {
+      throw new UnauthorizedException('Authorization header missing');
+    }
+
+    const token = authorization.split(' ')[1];
     if (!token) {
-      return false;
+      throw new UnauthorizedException('Bearer token missing');
     }
 
     try {
-      const user = this.jwtService.verify(token);
-      return requiredRoles.includes(user.role);
-    } catch {
-      return false;
+      const user = this.jwtService.verify(token); // Decode token
+      if (!user.userId || !user.role) {
+        throw new UnauthorizedException('Invalid token payload');
+      }
+      request.user = user; // Attach the user to the request
+      return requiredRoles ? requiredRoles.includes(user.role) : true;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
     }
+    
   }
 }

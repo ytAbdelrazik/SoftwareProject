@@ -11,17 +11,28 @@ export class QuickNotesController {
   create(@Body() createNoteDto: CreateNoteDto) {
     return this.quickNotesService.create(createNoteDto);
   }
+  
 
-@Get(':userId')
-  findByUser(@Param('userId') userId: string) {
-    return this.quickNotesService.findByUser(userId);
+@Get('module/:moduleId')
+  findByModule(@Param('moduleId') moduleId: string) {
+    return this.quickNotesService.findByModule(moduleId);
   }
 
-@Patch(':Title') //patch for updating not posting
+
+@Patch(':Title') 
   update(@Param('Title') title: string, @Body() updateNoteDto: UpdateNoteDto) {
     return this.quickNotesService.update(title, updateNoteDto);
   }
 
+@Patch('autosave/:title') // Endpoint for autosave bas i think this has to be done/completed fl frontend ?
+  async autosave(
+    @Param('title') title: string,
+    @Body() updateNoteDto: UpdateNoteDto
+  ) { 
+    return this.quickNotesService.update(title, updateNoteDto);
+  }
+  
+  
 @Delete(':Title')
   delete(@Param('Title') title: string) {
     return this.quickNotesService.delete(title);

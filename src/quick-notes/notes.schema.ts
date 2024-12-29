@@ -8,8 +8,8 @@ export class Note extends Document {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: false })
-  courseId?: string;
+  @Prop({ required: true }) 
+  moduleId: string;
 
   @Prop({ required: true })
   content: string;
@@ -21,4 +21,4 @@ export class Note extends Document {
   updatedAt: Date;
 }
 
-export const NoteSchema = SchemaFactory.createForClass(Note);
+export const NoteSchema = SchemaFactory.createForClass(Note);  

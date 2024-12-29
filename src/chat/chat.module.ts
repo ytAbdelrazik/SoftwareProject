@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+
+
 import { MongooseModule } from '@nestjs/mongoose';  // Import MongooseModule
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
@@ -34,6 +36,7 @@ import { Notification, NotificationSchema } from 'src/notifications/notification
   controllers: [ChatController],
 })
 export class ChatModule {}
+
 
 
 
