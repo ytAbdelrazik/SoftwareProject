@@ -17,6 +17,9 @@ export class Comment extends Document {
 
   @Prop({ default: Date.now }) // Timestamp of comment creation
   createdAt: Date;
+
+  @Prop({ default: Date.now }) // Timestamp of comment editing
+  updatedAt: Date;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);
