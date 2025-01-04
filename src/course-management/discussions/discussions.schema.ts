@@ -12,6 +12,9 @@ export class Discussion extends Document {
   @Prop({ required: true, enum: ['student', 'instructor'] })
   role: string;
 
+  @Prop({ required: true }) // Add the title field
+  title: string;
+
   @Prop({ required: true })
   content: string;
 
