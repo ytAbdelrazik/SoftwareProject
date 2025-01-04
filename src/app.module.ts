@@ -19,6 +19,7 @@ import { CourseSchema } from './course-management/course.schema'
 import { QuickNotesModule } from './quick-notes/notes.module';
 import { BackupModule } from './backup/backup.module';
 import { QuestionBankModule } from './interactive-modules/question-bank.module';
+import { DiscussionsModule } from './course-management/discussions/discussions.module'; // Add this
 
 
 
@@ -38,7 +39,7 @@ import { QuestionBankModule } from './interactive-modules/question-bank.module';
     AuthModule,
     ChatModule,
     QuickNotesModule, // Ensure this is correctly imported
-
+    DiscussionsModule,
     BackupModule,
     QuestionBankModule,
     ResponsesModule,
